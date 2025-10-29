@@ -1,0 +1,248 @@
+@import "./mixin";
+#user {
+  width: 50%;
+  height: 100%;
+  button {
+    width: 100%;
+  }
+
+  .cntnt_box {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  #result_area {
+    margin: -1rem 0 0;
+    text-align: center;
+
+    h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    #submittedData {
+      font-size: 0.9rem;
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+
+    a {
+      text-decoration: none;
+      color: #5278e7;
+    }
+  }
+
+  #header {
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+
+    h2 {
+      margin: 0 0 0.2rem;
+      font-size: 16px;
+    }
+
+    .ci {
+      width: 100%;
+      max-width: 200px;
+      margin-bottom: 0.5rem;
+    }
+  }
+
+  #input_area {
+    margin-bottom: 1rem;
+    width: 100%;
+
+    form {
+      margin: 0 auto;
+      text-align: center;
+
+      input,
+      textarea {
+        font-size: 0.8rem;
+        font-family: inherit;
+        margin-bottom: 0.5rem;
+        width: calc(100% - 1rem - 4px);
+        padding: 0.5rem;
+        outline: none;
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 0 2px 0 #000;
+        transition: all 0.3s linear;
+
+        &:focus,
+        &:active {
+          box-shadow: 0 0 2px 0 #133089;
+        }
+      }
+
+      button {
+        background: #5278e7;
+        color: #fff;
+
+        &:hover {
+          background: #466de2;
+        }
+      }
+    }
+  }
+
+  #desc_area {
+    width: 100%;
+    max-height: 30dvh;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    > div {
+      width: 100%;
+
+      &:first-child {
+        margin-right: 0.25rem;
+      }
+
+      &:last-child {
+        margin-left: 0.25rem;
+      }
+
+      .toggle {
+        font-size: 0.84rem;
+        margin: 0 auto;
+        display: inline-block;
+        background: #eee;
+        color: #000;
+
+        &:hover {
+          background: #ccc;
+        }
+      }
+
+      .desc_box {
+        overflow-y: hidden;
+        font-size: 0.75rem;
+        line-height: 1.4rem;
+        display: flex;
+        flex-direction: column;
+        max-height: 0;
+        opacity: 0;
+        transition: max-height 0.3s linear;
+        background: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 12px;
+        margin-top: 10px;
+        padding: 0.5rem;
+
+        &.open {
+          opacity: 1;
+          max-height: fit-content;
+        }
+
+        p {
+          margin: 0;
+        }
+      }
+    }
+  }
+}
+/* === 반응형 === */
+@include mobile {
+  #user {
+    width: 90% !important;
+
+    button {
+      font-size: 0.9rem;
+      padding: 0.6rem 1rem;
+    }
+
+    .cntnt_box {
+      height: fit-content;
+      width: calc(100% - 1rem) !important;
+      padding: 1rem 0.5rem !important;
+      justify-content: flex-start !important;
+      #header {
+        width: 60%;
+
+        .ci {
+          max-width: 240px !important;
+        }
+        img {
+          margin-bottom: 0;
+        }
+      }
+    }
+
+    #input_area {
+      margin-bottom: 2rem;
+      form input[type="text"] {
+      }
+
+      form textarea {
+        height: fit-content;
+        overflow-y: auto;
+      }
+      button {
+        width: 100%;
+      }
+    }
+
+    #desc_area {
+      flex-direction: column;
+      font-size: 0.7rem;
+      overflow: hidden !important;
+      max-height: unset;
+
+      > div {
+        margin: 0;
+        width: 100%;
+        text-align: center;
+        &:first-child {
+          margin: 0;
+        }
+        &:last-child {
+          margin: 0;
+        }
+        button {
+          width: 100%;
+        }
+
+        .toggle {
+          margin: 0;
+          margin-bottom: 0.5rem;
+        }
+        .desc_box {
+          width: 100%;
+          font-size: 0.8rem;
+          margin: 0;
+
+          &.open {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+
+            width: calc(100% - 1rem - 4px);
+          }
+        }
+      }
+    }
+  }
+}
+@include tablet { 
+  #user {
+    width: 60% !important;
+  }
+  .cntnt_box {
+    height: fit-content !important;
+    overflow-y: auto;
+    width: calc(100% - 1rem) !important;
+    padding: 1rem 0.5rem !important;
+    justify-content: flex-start !important;
+  }
+  #desc_area {
+    overflow: hidden !important;
+    max-height: unset !important;
+  }
+}

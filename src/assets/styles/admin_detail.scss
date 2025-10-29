@@ -1,0 +1,84 @@
+#admin_detail {
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    animation: fadeIn 0.25s ease-in-out;
+  }
+
+  .modal-content {
+    overflow-y: auto;
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2rem;
+    width: 50%;
+    max-height: 80vh;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease-out;
+
+    h2 {
+      padding: 0;
+      margin: 0 0 1rem 0;
+    }
+    .modal-body {
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        border-bottom: 1px solid #ddd;
+        padding: 00.5rem;
+      }
+      th {
+        border-right: 1px solid #ddd;
+        width: 20%;
+        min-width: fit-content;
+        text-align: left;
+      }
+      td {
+        width: 70%;
+        white-space: pre-wrap;
+        word-break: break-word;
+        overflow-wrap: break-word; 
+        line-height: 1.5;
+      }
+    }
+    button.close-btn {
+      width: 100%;
+      margin: 1rem auto 0 auto;
+      color: white;
+      cursor: pointer;
+      background-color: #333;
+      &:hover {
+        background-color: #444;
+      }
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideUp {
+    from {
+      transform: translateY(40px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+}
