@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+// import { useLocation, useNavigate } from "react-router-dom";
 import "./assets/styles/admin.scss";
 import "./assets/styles/loader.css";
 import "./assets/styles/common.scss";
@@ -16,9 +16,9 @@ interface FetchResponse {
   data?: string[][];
 }
 
-interface Props {
+/* interface Props {
   setIsLoggedIn: React.Dispatch<React.SetStateAction<string>>;
-}
+} */
 
 const API_URL = "https://icy-sea-0bb9.kkhhsq.workers.dev";
 
@@ -36,9 +36,9 @@ const DEFAULT_COLUMNS = [
 ];
 
 const Admin: React.FC<any> = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const userName = localStorage.getItem("userName");
+  // const navigate = useNavigate();
+  // const location = useLocation();
+  // const userName = localStorage.getItem("userName");
 
   const [status, setStatus] = useState<string>("⏳ 데이터 불러오는 중...");
   const [allColumns, setAllColumns] = useState<string[]>([]);
