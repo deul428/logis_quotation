@@ -7,13 +7,14 @@ import "./assets/styles/admin.scss";
 import "./assets/styles/login.scss";
 import { useState, useEffect } from "react";
 import {
-  useLocation,
-  BrowserRouter,
+  useLocation, 
   Routes,
   Route,
   useNavigate,
 } from "react-router-dom";
+import './type.d.ts';
 const App: React.FC = () => {
+  
   const [tabData, setTabData] = useState<string>("user");
   const location = useLocation();
   const navigate = useNavigate();

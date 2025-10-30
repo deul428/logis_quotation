@@ -4,7 +4,7 @@ import "./assets/styles/admin.scss";
 import "./assets/styles/loader.css";
 import "./assets/styles/common.scss";
 import AdminDetail from "./AdminDetail.tsx";
-import { BiSolidToTop } from "react-icons/bi";
+import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 import {
   MdOutlineKeyboardArrowUp,
   MdOutlineKeyboardArrowDown,
@@ -31,7 +31,7 @@ const DEFAULT_COLUMNS = [
   "업체명",
   "상품",
   "규격(스팩)",
-  "비고(제품 추가 정보)",
+  /*   "비고" ||  */ "비고(제품 추가 정보)",
   "견적 금액",
 ];
 
@@ -216,11 +216,12 @@ const Admin: React.FC<any> = () => {
           <></>
         )}
 
-        <table id="dataTable">
-          <thead>
-            <tr className="th_tr">
+        <div id="dataTable">
+          <div className="thead">
+            <div className="tr th_tr">
               {enabledIndexes.map((i) => (
-                <th
+                <div
+                  className="th"
                   key={i}
                   onClick={() => handleSort(header[i])}
                   style={{ cursor: "pointer", userSelect: "none" }}
@@ -232,18 +233,19 @@ const Admin: React.FC<any> = () => {
                     ) : (
                       <MdOutlineKeyboardArrowDown fontSize={"1.5rem"} />
                     ))}
-                </th>
+                </div>
               ))}
-              <th>견적 금액 수정</th>
-            </tr>
-          </thead>
-          <tbody>
+              <div className="th">견적 금액 수정</div>
+            </div>
+          </div>
+          <div className="tbody">
             {rows.map((row, rowIdx) => {
               const estimateNum = row[header.indexOf("견적번호")];
               const amount = row[header.indexOf("견적 금액")];
 
               return (
-                <tr
+                <div
+                  className="tr"
                   key={rowIdx}
                   onClick={() => {
                     // ✅ header와 row를 객체로 매핑
@@ -255,9 +257,12 @@ const Admin: React.FC<any> = () => {
                   }}
                 >
                   {enabledIndexes.map((i) => (
-                    <td key={i}>{formatCell(row[i])}</td>
+                    <div className="td" key={i}>
+                      {formatCell(row[i])}
+                    </div>
                   ))}
-                  <td
+                  <div
+                    className="td"
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
@@ -279,12 +284,12 @@ const Admin: React.FC<any> = () => {
                     >
                       저장
                     </button>
-                  </td>
-                </tr>
+                  </div>
+                </div>
               );
             })}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     );
   };
@@ -303,7 +308,7 @@ const Admin: React.FC<any> = () => {
       <div className="header">
         <h2>견적 관리 (관리자)</h2>
         <button id="top" style={{ fontSize: "1.5rem" }} onClick={goToTop}>
-          <BiSolidToTop />
+          <MdKeyboardDoubleArrowUp />
         </button>
       </div>
 

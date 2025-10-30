@@ -1,16 +1,17 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# frontend
 # dependencies
-.history
-/node_modules
-/.pnp
-.pnp.js
+/.history
+/frontend/node_modules
+/frontend/.pnp
+/frontend/.pnp.js
 
 # testing
-/coverage
+/frontend/coverage
 
 # production
-/build
+/frontend/build
 
 # misc
 .DS_Store
@@ -19,6 +20,9 @@
 .env.test.local
 .env.production.local
 
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+
+# 백엔드: 구글 앱스 스크립트 내부 코드로 코드 저장용임.
+backend

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ci from "./assets/img/logo.svg"
-import './assets/styles/user.scss'
+import "./assets/styles/user.scss";
 const User = () => {
   const [salesRep, setSalesRep] = useState<string>(""); // 영업담당자
   const [content, setContent] = useState<string>(""); // 견적 문의 내용
@@ -60,8 +60,9 @@ const User = () => {
         {!isSubmitted && (
           <div id="input_area">
             <form id="customForm" onSubmit={handleSubmit}>
-              <input type="text"
-                name="entry.586019235" 
+              <input
+                type="text"
+                name="entry.586019235"
                 placeholder="담당자 이름을 정자로 기입해 주시기 바랍니다."
                 value={salesRep}
                 onChange={(e: any) => setSalesRep(e.target.value)}
@@ -89,15 +90,15 @@ const User = () => {
         {isSubmitted && (
           <div id="result_area">
             <h2>접수가 완료되었습니다.</h2>
-            <div id="submittedData" style={{ whiteSpace: "pre-wrap" }}>
-              <p>
-                견적 문의 내용:
-                <br />
-                {content}
-              </p>
-              <p>
-                영업담당자: <strong>{salesRep || "미입력"}</strong>
-              </p>
+            <div id="submittedData" className="card">
+              <div className="rows row_01">
+                <h3>영업담당자</h3>
+                <p>{salesRep || "미입력"}</p>
+              </div>
+              <div className="rows row_02">
+                <h3>견적 문의 내용</h3>
+                <p>{content}</p>
+              </div>
             </div>
             <button id="newResponseLink" onClick={resetForm}>
               신규 접수하기
@@ -116,8 +117,8 @@ const User = () => {
                 📋 견적 요청 입력 가이드 보기/숨기기
               </button>
               {showGuide1 && (
-                <div id="guideBox_01" className="desc_box open">
-                  <div id="guide_01" className="desc">
+                <div id="guideBox_01" className="desc_box open card">
+                  <div id="guide_01" className="desc ">
                     <p>
                       업체명: [회사명]
                       <br />
@@ -148,7 +149,7 @@ const User = () => {
                 ⚠️ 입력 주의사항 보기/숨기기
               </button>
               {showGuide2 && (
-                <div id="guideBox_02" className="desc_box open">
+                <div id="guideBox_02" className="desc_box open card">
                   <div id="guide_02" className="desc">
                     <p>
                       1. 번호 표기 필수

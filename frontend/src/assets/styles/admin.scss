@@ -1,0 +1,181 @@
+#admin {
+  padding: 0 20px;
+  height: calc(100% - 50px);
+  width: calc(100% - 40px);
+  position: relative;
+  align-items: flex-start;
+  flex-direction: column;
+  overflow: hidden;
+  .header {
+    height: 5%;
+    margin: 1rem 0;
+    text-align: center;
+    h2 {
+      padding: 0;
+    }
+    #top {
+      background: #eee;
+      box-shadow: 0 0 2px 0 #000;
+      color: #111;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      text-align: center;
+      width: 50px;
+      height: 50px;
+      z-index: 999;
+      padding: 0;
+      border-radius: 50%;
+      svg {
+        width: 2rem;
+        height: 2rem;
+        margin-top: 4px;
+      }
+    }
+    #status {
+      font-size: 1.5rem;
+      padding: 10px;
+    }
+  }
+
+  #columnFilter {
+    display: none;
+    height: calc(15% - 1rem);
+    // display: inline-flex;
+    flex-direction: column;
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 1rem;
+    h3 {
+      margin: 0;
+      margin-bottom: 0.5rem;
+      font-size: 1.2rem;
+    }
+
+    label {
+      display: inline-flex;
+      width: calc(100% / 10);
+      margin-right: 10px;
+      font-size: 0.9rem;
+
+      input[type="checkbox"] {
+        box-shadow: none;
+        width: 1rem;
+        margin: 0 0.3rem 0 0;
+        accent-color: red;
+      }
+    }
+  }
+  .table-wrapper {
+    // height: calc(80% - 20px - 3rem);
+    height: 100%;
+    overflow-y: auto; // 🔹 세로 스크롤 활성화
+    #dataTable {
+      width: 100%;
+      display: table;
+      flex-direction: column;
+      flex: 1;
+      border-collapse: collapse;
+      overflow: auto;
+      margin-bottom: 1.5rem;
+      position: relative;
+
+      .thead,
+      .tbody {
+        .tr {
+          display: flex;
+          align-items: flex-start;
+          flex: 1 1 auto;
+          cursor: pointer;
+          transition: all 0.3s linear;
+          border: 1px solid #ccc;
+          height: fit-content;
+
+          &:hover {
+            background-color: #eee;
+          }
+
+          .th,
+          .td {
+            // border-right: 1px solid #ccc;
+            padding: 0 1rem;
+            margin: 0.6rem 0;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 4;
+            line-clamp: 4;
+            text-overflow: ellipsis;
+            white-space: normal;
+            word-break: break-word;
+            line-height: 1.4rem;
+            max-height: calc(1.4rem * 4);
+            align-items: flex-start;
+            flex: 3 1 0;
+
+            &:last-child {
+              border-right: none;
+            }
+            &:nth-child(-n + 4) {
+              flex: 1 1 0;
+            }
+          }
+          .td:last-child {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+
+            input[type="number"] {
+              margin: 0 0.25rem 0 0;
+              padding: 0 0.25rem;
+              width: calc(60% - 0.5rem) !important;
+              border-radius: 0.5rem;
+              border: 1px solid #aaa;
+              height: 2rem;
+              overflow-x: auto;
+              overflow-y: hidden;
+            }
+
+            button {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 30% !important;
+              padding: 0;
+              height: 2rem; 
+            }
+          }
+
+          /* ✅ 열 비율 클래스 */
+          .flex-1 {
+            flex: 1 1 0;
+          }
+          .flex-2 {
+            flex: 2 1 0;
+          }
+          .flex-3 {
+            flex: 3 1 0;
+          }
+        }
+      }
+      .thead {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        .tr {
+          background: whitesmoke;
+        }
+        .tr:hover {
+          background-color: whitesmoke !important;
+        }
+      }
+      .tbody {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+      }
+    }
+  }
+}

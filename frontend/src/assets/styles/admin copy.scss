@@ -14,10 +14,12 @@
       padding: 0;
     }
     #top {
-      background: #000;
+      background: #eee;
+      box-shadow: 0 0 2px 0 #000;
+      color: #111;
       position: fixed;
-      bottom: 50px;
-      right: 50px;
+      bottom: 2rem;
+      right: 2rem;
       text-align: center;
       width: 50px;
       height: 50px;
@@ -25,8 +27,9 @@
       padding: 0;
       border-radius: 50%;
       svg {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: 2rem;
+        height: 2rem;
+        margin-top: 4px;
       }
     }
     #status {
@@ -41,7 +44,7 @@
     // display: inline-flex;
     flex-direction: column;
     background: #f8f9fa;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     margin-bottom: 1rem;
     padding: 0.5rem 1rem;
     h3 {
@@ -78,85 +81,99 @@
       margin-bottom: 1.5rem;
       position: relative;
 
-      thead {
+      .thead {
         position: sticky;
         top: 0;
         background: white;
         z-index: 5;
       }
-      tbody {
+      .tbody {
         display: flex;
         flex-direction: column;
         flex: 1;
       }
 
-      tr {
+      .tr {
         align-items: center;
         flex: 1 1 auto;
         // height: 40px !important;
         display: flex;
         cursor: pointer;
         transition: all 0.3s linear;
+        border: 1px solid #ccc;
 
         &:hover {
           background-color: #eee;
         }
 
-        th {
+        .th {
+          padding: 0.4rem 1rem !important;
           text-align: left;
           background: white;
           display: inline-flex !important;
-          // justify-content: center;
-          height: calc(100% - 1rem) !important;
+          // height: calc(40px - 1rem) !important;
+          overflow: hidden !important;
           align-items: center;
           min-height: unset !important;
           max-height: unset !important;
-          /* &:hover {
-            background-color: #1a1a1a;
-            color: white;
-          } */
-        }
-        th,
-        td {
-          min-height: calc(100px - 1rem);
-          max-height: calc(100px - 1rem);
           height: 100%;
-          width: calc(100% - 1rem);
-          display: inline-block;
-          vertical-align: middle;
-          border: 1px solid #ccc;
-          border-top: none;
-          padding: 0.5rem;
-          word-wrap: break-word;
-          overflow-wrap: break-word;
-          white-space: normal;
-          overflow-y: auto;
+          align-items: flex-start;
+          &:nth-child(1) {
+            background-color: pink;
+            flex-grow: 1;
+            flex-basis: 0;
+          }
+          flex-grow: 1;
+          flex-basis: 0;
         }
 
-        td:last-child {
-          display: inline-flex;
-          flex-direction: row;
-          align-items: center;
-          justify-content: space-between;
+        .th,
+        .td {
+          font-size: 0.9rem;
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 4;
+          line-clamp: 4;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: normal;
+          word-break: break-word;
+          line-height: 1.5rem;
+          max-height: calc(1.5rem * 4 - 2px);
+          padding: 0 1rem;
+          // margin: 0.2rem 0;
+          vertical-align: top;
+          width: calc(100% - 1rem);
+        }
 
-          input[type="number"] {
-            margin: 0 0.25rem 0 0;
-            padding: 0 0.25rem;
-            width: 60%;
-            border-radius: 0.5rem;
-            border: 1px solid #aaa;
-            height: 40px;
-            overflow-x: auto;
-            overflow-y: hidden;
-          }
+        .td {
+          &:last-child {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
 
-          button {
-            width: 30% !important;
-            padding: 0;
-            height: 40px;
-            line-height: 42px;
-            min-width: 50px;
+            input[type="number"] {
+              margin: 0 0.25rem 0 0;
+              padding: 0 0.25rem;
+              width: calc(60% - 0.5rem) !important;
+              border-radius: 0.5rem;
+              border: 1px solid #aaa;
+              height: 40px;
+              overflow-x: auto;
+              overflow-y: hidden;
+            }
+
+            button {
+              width: 30% !important;
+              padding: 0;
+              height: 40px;
+              line-height: 42px;
+              min-width: 50px;
+            }
           }
+        }
+        .td:last-child {
         }
       }
     }
