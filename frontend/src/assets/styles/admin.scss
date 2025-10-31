@@ -1,13 +1,16 @@
+@import "./variables";
+
 #admin {
   padding: 0 20px;
-  height: calc(100% - 50px);
+  height: calc(100% - $header-height);
   width: calc(100% - 40px);
   position: relative;
   align-items: flex-start;
   flex-direction: column;
   overflow: hidden;
   .header {
-    height: 5%;
+    height: calc(5dvh - 2rem);
+    min-height: fit-content;
     margin: 1rem 0;
     text-align: center;
     h2 {
@@ -68,8 +71,7 @@
     }
   }
   .table-wrapper {
-    // height: calc(80% - 20px - 3rem);
-    height: 100%;
+    height: calc(100% - 5dvh - 2rem);
     overflow-y: auto; // 🔹 세로 스크롤 활성화
     #dataTable {
       width: 100%;
@@ -95,10 +97,11 @@
           &:hover {
             background-color: #eee;
           }
-
           .th,
           .td {
-            // border-right: 1px solid #ccc;
+            button {
+              height: 2rem;
+            }
             padding: 0 1rem;
             margin: 0.6rem 0;
             overflow: hidden;
@@ -120,34 +123,40 @@
             &:nth-child(-n + 4) {
               flex: 1 1 0;
             }
-          }
-          .td:last-child {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-
-            input[type="number"] {
-              margin: 0 0.25rem 0 0;
-              padding: 0 0.25rem;
-              width: calc(60% - 0.5rem) !important;
-              border-radius: 0.5rem;
-              border: 1px solid #aaa;
-              height: 2rem;
-              overflow-x: auto;
-              overflow-y: hidden;
-            }
-
-            button {
+            &:nth-last-child(2) {
+              background-color: pink;
               display: flex;
-              justify-content: center;
+              flex-direction: row;
               align-items: center;
-              width: 30% !important;
-              padding: 0;
-              height: 2rem; 
+              justify-content: space-between;
+
+              input[type="number"] {
+                margin: 0 0.25rem 0 0;
+                padding: 0 0.25rem;
+                width: calc(60% - 0.5rem) !important;
+                border-radius: 0.5rem;
+                border: 1px solid #aaa;
+                height: 2rem;
+                overflow-x: auto;
+                overflow-y: hidden;
+              }
+
+              button {
+                padding: 0;
+                width: 30% !important;
+              }
+            }
+            &:nth-last-child(1) {
+              flex: 1 1 0;
+              button {
+                width: fit-content;
+                background-color: #e79052;
+                &:hover {
+                  background-color: #e27a2f;
+                }
+              }
             }
           }
-
           /* ✅ 열 비율 클래스 */
           .flex-1 {
             flex: 1 1 0;
@@ -164,8 +173,15 @@
         position: sticky;
         top: 0;
         z-index: 5;
-        .tr {
+        .th_tr {
           background: whitesmoke;
+          align-items: center !important;
+
+          .th {
+            display: flex;
+            line-height: 1.5;
+            align-items: center !important;
+          }
         }
         .tr:hover {
           background-color: whitesmoke !important;

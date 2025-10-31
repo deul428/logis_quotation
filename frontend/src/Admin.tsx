@@ -44,8 +44,11 @@ const Admin: React.FC<any> = () => {
   const [allColumns, setAllColumns] = useState<string[]>([]);
   const [activeColumns, setActiveColumns] = useState<string[]>([]);
   const [data, setData] = useState<string[][]>([]);
-  const [sortColumn, setSortColumn] = useState<string | null>(null);
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortColumn, setSortColumn] = useState<string | null>("요청일");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  const [isSend, setIsSend] = useState<boolean>(false);
+
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Record<string, string> | null>(
     null
@@ -75,6 +78,7 @@ const Admin: React.FC<any> = () => {
           tableData[0].filter((h) => DEFAULT_COLUMNS.includes(h))
         );
         setStatus("");
+        setTimeout(() => handleSort("요청일"), 0);
       } else {
         setStatus(json.message || "데이터 로드 실패");
       }
@@ -85,14 +89,18 @@ const Admin: React.FC<any> = () => {
       setLoading(false);
     }
   };
-
   // 열 토글
   const toggleColumn = (col: string) => {
     setActiveColumns((prev) =>
       prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col]
     );
   };
-
+  useEffect(() => {
+    if (data.length > 1 && !sortColumn) {
+      handleSort("요청일");
+      setSortDirection("desc");
+    }
+  }, [data]);
   // 셀 포맷
   const formatCell = (value: string | number | null | undefined): string => {
     if (!value) return "";
@@ -112,6 +120,7 @@ const Admin: React.FC<any> = () => {
   // 정렬
   const handleSort = (colName: string) => {
     if (!data || data.length <= 1) return;
+    console.log("colName", colName);
 
     const header = data[0];
     const body = data.slice(1);
@@ -153,9 +162,6 @@ const Admin: React.FC<any> = () => {
     setData([header, ...sortedBody]);
   };
 
-  useEffect(() => {
-    console.log("loading:", loading);
-  }, [loading]);
   // 견적 금액 수정
   const sendEstimate = async (estimateNum: string, newAmount: string) => {
     if (!newAmount.trim()) {
@@ -193,10 +199,52 @@ const Admin: React.FC<any> = () => {
     }
   };
 
+  // 영업 담당자 이메일 발송
+  const sendEmailToSalesManager = async (
+    e: any,
+    row: any,
+    estimateNum: any,
+    salesManager: any
+  ) => {
+    if (!salesManager) {
+      alert("영업 담당자가 기입되지 않았습니다.\n다시 확인해 주세요.");
+      return;
+    }
+    console.log(row, estimateNum, salesManager);
+    if (!window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")) {
+      return;
+    } else {
+      try {
+        const payload = {
+          mode: "admin",
+          action: "sendToSalesManager",
+          salesManager,
+          estimateNum,
+        };
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        console.log("res:", res);
+        setIsSend(true);
+        alert("발송이 완료되었습니다.");
+      } catch (e) {
+        throw new Error("오류가 발생했습니다. " + e);
+      } finally {
+      }
+    }
+  };
+
   // 테이블 렌더링
   const renderTable = () => {
-    if (!data || data.length === 0) return <p>데이터 없음</p>;
-
+    if (!data || data.length === 0) {
+      if (status !== "⏳ 데이터 불러오는 중...") {
+        return <p>데이터 없음</p>;
+      }
+      return;
+    }
     const header = data[0];
     if (data[0][13]?.toString() === "비고(제품 추가 정보)") {
       data[0][13] = "비고";
@@ -236,13 +284,13 @@ const Admin: React.FC<any> = () => {
                 </div>
               ))}
               <div className="th">견적 금액 수정</div>
+              <div className="th">메일 발송</div>
             </div>
           </div>
           <div className="tbody">
             {rows.map((row, rowIdx) => {
               const estimateNum = row[header.indexOf("견적번호")];
               const amount = row[header.indexOf("견적 금액")];
-
               return (
                 <div
                   className="tr"
@@ -275,7 +323,7 @@ const Admin: React.FC<any> = () => {
                     />
                     <button
                       onClick={(e) => {
-                        e.stopPropagation(); // 클릭 시 상세창 열리지 않게
+                        e.stopPropagation();
                         const inputEl = document.getElementById(
                           `amount-${estimateNum}`
                         ) as HTMLInputElement | null;
@@ -283,6 +331,26 @@ const Admin: React.FC<any> = () => {
                       }}
                     >
                       저장
+                    </button>
+                  </div>
+                  <div
+                    className="td"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        sendEmailToSalesManager(
+                          e,
+                          row,
+                          estimateNum,
+                          row[header.indexOf("영업담당자")]
+                        );
+                      }}
+                    >
+                      {row[header.indexOf("메일 발송 상태")]}
                     </button>
                   </div>
                 </div>

@@ -1,5 +1,5 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/variable/pretendardvariable.css");
-
+@import "./variables";
 .wrap {
   height: 100dvh;
   width: 100dvw;
@@ -33,9 +33,12 @@
     width: calc(100% - 4px - 2rem);
     border-radius: 1rem;
     margin-top: 1rem;
-        box-shadow: inset 0 0 2px 0 #aaa;
-  }
+    box-shadow: inset 0 0 2px 0 #aaa;
+  } 
   button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
     border: none;
     padding: 0.7rem 1rem;
     width: calc(100% - 2rem);
@@ -53,6 +56,8 @@
   }
   #header {
     width: 100%;
+    height: $header-height;
+    overflow: hidden;
     display: flex;
     justify-content: flex-end;
     .tabs {
