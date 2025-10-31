@@ -102,6 +102,8 @@
             button {
               height: 2rem;
             }
+
+            font-size: 0.9rem;
             padding: 0 1rem;
             margin: 0.6rem 0;
             overflow: hidden;
@@ -115,7 +117,7 @@
             line-height: 1.4rem;
             max-height: calc(1.4rem * 4);
             align-items: flex-start;
-            flex: 3 1 0;
+            flex: 2 1 0;
 
             &:last-child {
               border-right: none;
@@ -124,7 +126,6 @@
               flex: 1 1 0;
             }
             &:nth-last-child(2) {
-              background-color: pink;
               display: flex;
               flex-direction: row;
               align-items: center;
@@ -149,8 +150,9 @@
             &:nth-last-child(1) {
               flex: 1 1 0;
               button {
-                width: fit-content;
+                width: 100%;
                 background-color: #e79052;
+                white-space: pre;
                 &:hover {
                   background-color: #e27a2f;
                 }
@@ -178,6 +180,7 @@
           align-items: center !important;
 
           .th {
+            font-weight: 700;
             display: flex;
             line-height: 1.5;
             align-items: center !important;
