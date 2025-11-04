@@ -54,18 +54,18 @@
       background: #466de2;
     }
     &.warning {
-      background: #e79052 !important;
+      background: #e79052;
       &:hover {
-        background: #e27a2f !important;
+        background: #e27a2f ;
       }
     }
     &.info {
-      background: white !important;
+      background: white ;
       color: #111; 
       box-shadow: 0 0 4px 0 #999;
 
       &:hover {
-        background: #eee !important;
+        background: #eee ;
       }
     }
   }

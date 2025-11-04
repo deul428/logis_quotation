@@ -9,7 +9,7 @@ interface Props {
   formatCell: (value: string | number | null | undefined) => string; // ✅ 추가
 }
 
-const AdminDetail: React.FC<Props> = ({ row, onClose,formatCell }) => {
+const AdminDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
   // ESC 키로 닫기
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -17,7 +17,7 @@ const AdminDetail: React.FC<Props> = ({ row, onClose,formatCell }) => {
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]); 
+  }, [onClose]);
 
   return (
     <div id="admin_detail">
@@ -32,12 +32,25 @@ const AdminDetail: React.FC<Props> = ({ row, onClose,formatCell }) => {
             {row && Object.keys(row).length > 0 ? (
               <table className="detail-table">
                 <tbody>
-                  {Object.entries(row).map(([key, value]) => (
-                    <tr key={key}>
-                      <th>{key}</th>
-                      <td>{key === '요청일' ? formatCell(value): value || " "}</td>
-                    </tr>
-                  ))}
+                  {Object.entries(row).map(([key, value]) => {
+                    let displayValue = value || " ";
+
+                    if (key === "요청일") {
+                      displayValue = formatCell(value);
+                    } else if (key === "견적 금액" && value) {
+                      // 3자리마다 콤마 추가
+                      displayValue = value
+                        .toString()
+                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    }
+
+                    return (
+                      <tr key={key}>
+                        <th>{key}</th>
+                        <td>{displayValue}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             ) : (

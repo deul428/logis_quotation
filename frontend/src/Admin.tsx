@@ -103,8 +103,7 @@ const Admin: React.FC<any> = () => {
       prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col]
     );
   };
-  useEffect(() => {
-    console.log("data:", data);
+  useEffect(() => { 
     if (data.length > 1) {
       renderTable();
     }
@@ -171,9 +170,18 @@ const Admin: React.FC<any> = () => {
   };
 
   // 견적 금액 수정
-  const sendEstimate = async (estimateNum: string, newAmount: string) => {
-    if (!newAmount.trim()) {
+  const sendEstimate = async (
+    estimateNum: string,
+    pastAmount: string,
+    newAmount: string
+  ) => {
+    console.log(estimateNum, pastAmount, newAmount);
+    if (!newAmount.toString().trim()) {
       alert("금액을 입력하세요.");
+      return;
+    }
+    if (pastAmount.toString().trim() === newAmount.toString().trim()) {
+      alert("금액을 변경해 주세요.");
       return;
     }
 
@@ -351,32 +359,32 @@ const Admin: React.FC<any> = () => {
       const confirmUpdate = window.confirm(
         `견적 금액(${inputValue})을 저장한 후 메일을 발송할까요?`
       );
-      if (!confirmUpdate) return;
+      if (confirmUpdate) {
+        try {
+          const payload = {
+            mode: "admin",
+            action: "updateEstimate",
+            estimateNum,
+            newAmount: inputValue,
+          };
 
-      try {
-        const payload = {
-          mode: "admin",
-          action: "updateEstimate",
-          estimateNum,
-          newAmount: inputValue,
-        };
+          // 금액 업데이트 먼저 수행
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const text = await res.text();
+          console.log("견적 금액 업데이트 응답:", text);
+          alert("견적 금액이 먼저 저장되었습니다.");
 
-        // 금액 업데이트 먼저 수행
-        const res = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        const text = await res.text();
-        console.log("견적 금액 업데이트 응답:", text);
-        alert("견적 금액이 먼저 저장되었습니다.");
-
-        // ⚠️ 백엔드(GAS) 반영 대기
-        await new Promise((r) => setTimeout(r, 1200));
-      } catch (err) {
-        console.error("견적 금액 저장 중 오류:", err);
-        alert("견적 금액 저장 중 오류가 발생했습니다.");
-        return;
+          // ⚠️ 백엔드(GAS) 반영 대기
+          await new Promise((r) => setTimeout(r, 1200));
+        } catch (err) {
+          console.error("견적 금액 저장 중 오류:", err);
+          alert("견적 금액 저장 중 오류가 발생했습니다.");
+          return;
+        }
       }
     }
 
@@ -394,7 +402,7 @@ const Admin: React.FC<any> = () => {
       ) {
         return;
       }
-    } 
+    }
     if (!row.salesManager) {
       alert("영업 담당자가 기입되지 않았습니다.\n다시 확인해 주세요.");
       return;
@@ -472,7 +480,7 @@ const Admin: React.FC<any> = () => {
                     ))}
                 </div>
               ))}
-              <div className="th">견적 금액 수정</div>
+              {/* <div className="th">견적 금액 수정</div> */}
               <div className="th">메일 발송</div>
             </div>
           </div>
@@ -480,12 +488,12 @@ const Admin: React.FC<any> = () => {
             {rows.map((row, rowIdx) => {
               const estimateNum = row[header.indexOf("견적번호")];
               const amount = row[header.indexOf("견적 금액")];
+
               return (
                 <div
                   className="tr"
                   key={rowIdx}
                   onClick={() => {
-                    // ✅ header와 row를 객체로 매핑
                     const rowObj = header.reduce((acc, key, idx) => {
                       acc[key] = row[idx];
                       return acc;
@@ -493,58 +501,54 @@ const Admin: React.FC<any> = () => {
                     setSelectedRow(rowObj);
                   }}
                 >
-                  {enabledIndexes.map((i) => (
-                    <div className="td" key={i}>
-                      {formatCell(row[i])}
-                    </div>
-                  ))}
-                  <div
-                    className="td"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    <input
-                      type="number"
-                      value={editedAmounts[estimateNum] ?? amount ?? ""} // ✅ data와 상태 동기화
-                      onChange={(e) => {
-                        setEditedAmounts((prev) => ({
-                          ...prev,
-                          [estimateNum]: e.target.value,
-                        }));
-                      }}
-                      style={{ width: "100px" }}
-                    />
+                  {enabledIndexes.map((i) => {
+                    const colName = header[i];
+                    const value = row[i];
 
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const newAmount =
-                          editedAmounts[estimateNum] ?? amount ?? "";
-                        sendEstimate(estimateNum, newAmount);
-                      }}
-                    >
-                      저장
-                    </button>
-                    {/* 
-                    <input
-                      type="number"
-                      defaultValue={amount}
-                      id={`amount-${estimateNum}`}
-                      style={{ width: "100px" }}
-                    />
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const inputEl = document.getElementById(
-                          `amount-${estimateNum}`
-                        ) as HTMLInputElement | null;
-                        sendEstimate(estimateNum, inputEl?.value || "");
-                      }}
-                    >
-                      저장
-                    </button> */}
-                  </div>
+                    const viewValue = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    // ✅ “견적 금액” 열일 때만 input + 저장 버튼 포함
+                    if (colName === "견적 금액") {
+                      return (
+                        <div
+                          className="td"
+                          key={i}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="number"
+                            placeholder={viewValue}
+                            // defaultValue={value}
+                            value={editedAmounts[estimateNum] ?? viewValue ?? ""}
+                            onChange={(e) =>
+                              setEditedAmounts((prev) => ({
+                                ...prev,
+                                [estimateNum]: e.target.value,
+                              }))
+                            }
+                            style={{ width: "100px" }}
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newAmount =
+                                editedAmounts[estimateNum] ?? value ?? "";
+                              sendEstimate(estimateNum, value, newAmount);
+                            }}
+                          >
+                            저장
+                          </button>
+                        </div>
+                      );
+                    }
+
+                    // ✅ 나머지 열은 기존대로 출력
+                    return (
+                      <div className="td" key={i}>
+                        {formatCell(value)}
+                      </div>
+                    );
+                  })}
+
                   <div
                     className="td"
                     onClick={(e) => {
@@ -553,6 +557,11 @@ const Admin: React.FC<any> = () => {
                   >
                     <button
                       className="warning"
+                      style={
+                        row[header.indexOf("메일 발송 상태")] === "발송 완료"
+                          ? { background: "#f8b568ff", color: "#402200ff" }
+                          : { background: "#fd9823ff" }
+                      }
                       onClick={(e) => {
                         e.stopPropagation();
                         const rowObj = header.reduce((acc, key, idx) => {
