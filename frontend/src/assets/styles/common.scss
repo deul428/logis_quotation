@@ -53,6 +53,21 @@
     &:hover {
       background: #466de2;
     }
+    &.warning {
+      background: #e79052 !important;
+      &:hover {
+        background: #e27a2f !important;
+      }
+    }
+    &.info {
+      background: white !important;
+      color: #111; 
+      box-shadow: 0 0 4px 0 #999;
+
+      &:hover {
+        background: #eee !important;
+      }
+    }
   }
   #header {
     width: 100%;

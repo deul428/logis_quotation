@@ -51,7 +51,7 @@ const User = () => {
   return (
     <div id="user">
       <div className="cntnt_box">
-        <div id="header">
+        <div className="user_header">
           <h2>로지스 유통 견적 문의</h2>
           <img className="ci" src={ci} alt="AJ 로고" />
         </div>

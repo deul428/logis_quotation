@@ -17,8 +17,7 @@ const AdminDetail: React.FC<Props> = ({ row, onClose,formatCell }) => {
     };
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
-  }, [onClose]);
-  console.log(row)
+  }, [onClose]); 
 
   return (
     <div id="admin_detail">
