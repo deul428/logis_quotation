@@ -11,15 +11,16 @@ import {
 } from "react-icons/md";
 import { IoReload } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
+import Header from "./Header.tsx";
 interface FetchResponse {
   status: string;
   message?: string;
   data?: string[][];
 }
-
-/* interface Props {
-  setIsLoggedIn: React.Dispatch<React.SetStateAction<string>>;
-} */
+interface ChildProps {
+  tabData: string;
+  setTabData: React.Dispatch<React.SetStateAction<string>>;
+}
 
 const API_URL = "https://icy-sea-0bb9.kkhhsq.workers.dev";
 
@@ -44,7 +45,7 @@ const DEFAULT_COLUMNS = [
   "견적 금액",
 ];
 
-const Admin: React.FC<any> = () => {
+const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   // const navigate = useNavigate();
   // const location = useLocation();
   // const userName = localStorage.getItem("userName");
@@ -747,89 +748,91 @@ const Admin: React.FC<any> = () => {
     }
   };
   return (
-    <div id="admin">
-      <button id="top" className="info" onClick={goToTop}>
-        <MdKeyboardDoubleArrowUp />
-      </button>
+    <>
+      <Header tabData={tabData} setTabData={setTabData} />
+      <div id="admin">
+        <button id="top" className="info" onClick={goToTop}>
+          <MdKeyboardDoubleArrowUp />
+        </button>
 
-      {loading ? (
-        <div className="loader_area">
-          <div className="loader" />
-        </div>
-      ) : (
-        <></>
-      )}
-      {location.pathname.includes("admin") ? (
-        <h2>견적 관리 (관리자)</h2>
-      ) : (
-        <></>
-      )}
-      {allColumns.length > 0 && (
-        <div id="search_area">
-          {/* <h3>검색</h3> */}
-          <div className="search_box">
-            <div className="th">
-              <label key="manager">견적 담당자</label>
-            </div>
-            <div className="td">
-              <input
-                data-key="manager"
-                placeholder="견적 담당자 검색"
-                type="text"
-                onChange={(e) =>
-                  searchFilter(e.target.dataset.key, e.target.value)
-                }
-              />
-            </div>
+        {loading ? (
+          <div className="loader_area">
+            <div className="loader" />
           </div>
-          <div className="search_box">
-            <div className="th">
-              <label key="salesManager">영업 담당자</label>
+        ) : (
+          <></>
+        )}
+        {location.pathname.includes("admin") ? (
+          <h2>견적 관리 (관리자)</h2>
+        ) : (
+          <></>
+        )}
+        {allColumns.length > 0 && (
+          <div id="search_area">
+            {/* <h3>검색</h3> */}
+            <div className="search_box">
+              <div className="th">
+                <label key="manager">견적 담당자</label>
+              </div>
+              <div className="td">
+                <input
+                  data-key="manager"
+                  placeholder="견적 담당자 검색"
+                  type="text"
+                  onChange={(e) =>
+                    searchFilter(e.target.dataset.key, e.target.value)
+                  }
+                />
+              </div>
             </div>
-            <div className="td">
-              <input
-                data-key="salesManager"
-                placeholder="영업 담당자 검색"
-                type="text"
-                onChange={(e) =>
-                  searchFilter(e.target.dataset.key, e.target.value)
-                }
-              />
+            <div className="search_box">
+              <div className="th">
+                <label key="salesManager">영업 담당자</label>
+              </div>
+              <div className="td">
+                <input
+                  data-key="salesManager"
+                  placeholder="영업 담당자 검색"
+                  type="text"
+                  onChange={(e) =>
+                    searchFilter(e.target.dataset.key, e.target.value)
+                  }
+                />
+              </div>
             </div>
-          </div>
-          <div className="search_box">
-            <div className="th">
-              <label key="requestDate">요청일</label>
+            <div className="search_box">
+              <div className="th">
+                <label key="requestDate">요청일</label>
+              </div>
+              <div className="td">
+                <input
+                  data-key="requestDate"
+                  placeholder="요청일 검색"
+                  type="date"
+                  onChange={(e) =>
+                    searchFilter(e.target.dataset.key, e.target.value)
+                  }
+                />
+              </div>
             </div>
-            <div className="td">
-              <input
-                data-key="requestDate"
-                placeholder="요청일 검색"
-                type="date"
-                onChange={(e) =>
-                  searchFilter(e.target.dataset.key, e.target.value)
-                }
-              />
+            <div className="search_box">
+              <div className="th">
+                <label key="company">업체명</label>
+              </div>
+              <div className="td">
+                <input
+                  data-key="company"
+                  placeholder="업체명 검색"
+                  type="text"
+                  onChange={(e) =>
+                    searchFilter(e.target.dataset.key, e.target.value)
+                  }
+                />
+              </div>
             </div>
-          </div>
-          <div className="search_box">
-            <div className="th">
-              <label key="company">업체명</label>
-            </div>
-            <div className="td">
-              <input
-                data-key="company"
-                placeholder="업체명 검색"
-                type="text"
-                onChange={(e) =>
-                  searchFilter(e.target.dataset.key, e.target.value)
-                }
-              />
-            </div>
-          </div>
-          {/* <button onClick={() => searchFilter(searchManager)}>검색</button> */}
+            {/* <button onClick={() => searchFilter(searchManager)}>검색</button> */}
 
-          {/* <h3>표시할 열 선택</h3>
+            {/* <h3>표시할 열 선택</h3>
             {allColumns.map((col) => (
               <label key={col}>
                 <input
@@ -840,19 +843,20 @@ const Admin: React.FC<any> = () => {
                 {col}
               </label>
             ))}  */}
-        </div>
-      )}
+          </div>
+        )}
 
-      {renderTable()}
+        {renderTable()}
 
-      {selectedRow && (
-        <AdminDetail
-          formatCell={formatCell}
-          row={selectedRow}
-          onClose={() => setSelectedRow(null)}
-        />
-      )}
-    </div>
+        {selectedRow && (
+          <AdminDetail
+            formatCell={formatCell}
+            row={selectedRow}
+            onClose={() => setSelectedRow(null)}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

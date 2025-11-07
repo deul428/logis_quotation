@@ -874,10 +874,10 @@ function insertToFinalSheet(
 }
 // 신규 함수: 이메일 발송
 function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
-  manager = { name: '김희수', email: 'kimhs@ajnet.co.kr' }
+/*   manager = { name: '김희수', email: 'kimhs@ajnet.co.kr' }
   salesManager = "김희수"
   parsedData = {}
-  estimateNum = 9999
+  estimateNum = 9999 */
   try {
     const subject = `신규 견적 요청 (#${estimateNum}) - ${parsedData["업체명"] || "미기입"}`;
 
