@@ -118,11 +118,6 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col]
     );
   };
-  useEffect(() => {
-    if (data.length > 1) {
-      renderTable();
-    }
-  }, [data]);
   // 셀 포맷
   const formatCell = (value: string | number | null | undefined): string => {
     if (!value) return "";
@@ -226,7 +221,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       console.error("전송 오류:", err);
       alert("❌ 서버 전송 실패");
     } finally {
-      setLoading(true);
+      setLoading(false);
       setTimeout(() => {
         loadData();
       }, 3000);
@@ -273,7 +268,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       console.error("전송 오류:", err);
       alert("❌ 서버 전송 실패");
     } finally {
-      setLoading(true);
+      setLoading(false);
       setTimeout(() => {
         loadData();
       }, 3000);
@@ -347,11 +342,11 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
 
     const row = convertKeysToEnglish(rowObj);
     const estimateNum = row.estimateNum;
-    const newAmount = editedAmounts[estimateNum]; // 사용자가 수정한 input 값
+    const newAmount = editedAmounts[estimateNum]  // 사용자가 수정한 input 값
     const amount = row.quoteAmount || "";
     const newMemo = editedMemo[estimateNum]; // 사용자가 수정한 input 값
     const memo = row.quoteMemo || "";
-
+ 
     // 1️⃣ 견적 금액 자동 반영 로직
     /*     if (inputValue && inputValue !== amount) {
       const confirmUpdate = window.confirm(
@@ -386,7 +381,8 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       }
     }
  */
-    if ((newAmount && newAmount !== amount) || (newMemo && newMemo !== memo)) {
+    if ((newAmount && newAmount !== amount.toString()) || (newMemo && newMemo !== memo)) {
+      
       const confirmUpdate = window.confirm(
         `행에 저장되지 않은 값이 있습니다. 값을 먼저 업데이트하신 후 메일을 발송하시겠습니까?`
       );
@@ -436,6 +432,13 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     }
 
     try {
+      if (Number(newAmount) !== Number(row.quoteAmount)){
+        row.quoteAmount = Number(newAmount);
+      }
+      if (row.quoteMemo !== newMemo) {
+        row.quoteMemo = newMemo;
+      }
+
       const payload = {
         mode: "admin",
         action: "sendToSalesManager",
@@ -450,15 +453,15 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
 
       const result = await res.text();
       console.log("메일 발송 응답:", result);
+    } catch (e) {
+      alert("메일 발송 중 오류가 발생했습니다. " + e);
+      console.error("메일 발송 오류:", e);
+    } finally {
       alert("📩 메일 발송이 완료되었습니다.");
-
       // 데이터 갱신
       setTimeout(() => {
         loadData();
       }, 1200);
-    } catch (e) {
-      alert("메일 발송 중 오류가 발생했습니다. " + e);
-      console.error("메일 발송 오류:", e);
     }
   };
 
@@ -589,7 +592,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
               return (
                 <div
                   className="tr"
-                  key={rowIdx}
+                  key={estimateNum || rowIdx}
                   onClick={() => {
                     const rowObj = header.reduce((acc, key, idx) => {
                       acc[key] = row[idx];
@@ -607,11 +610,12 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                       .toString()
                       .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 
-                    // ✅ “견적 금액” 열일 때만 input + 저장 버튼 포함
+                    // ✅ "견적 금액" 열일 때만 input + 저장 버튼 포함
                     if (
                       colName.toString().replace(/ /g, "").trim() ===
                       "견적담당자비고"
                     ) {
+                      const memoValue = editedMemo[estimateNum] ?? value ?? "";
                       return (
                         <div
                           className="td quoteMemo"
@@ -620,9 +624,8 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                         >
                           <input
                             type="text"
-                            placeholder={value}
-                            // defaultValue={value}
-
+                            placeholder={memoValue}
+                            defaultValue={memoValue}
                             onChange={(e) =>
                               setEditedMemo((prev) => ({
                                 ...prev,
@@ -646,6 +649,8 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                     if (
                       colName.toString().replace(/ /g, "").trim() === "견적금액"
                     ) {
+                      const amountValue =
+                        editedAmounts[estimateNum] ?? value ?? "";
                       return (
                         <div
                           className="td quoteAmount"
@@ -655,10 +660,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                           <input
                             type="number"
                             placeholder={viewValue}
-                            defaultValue={value}
-                            // value={
-                            //   editedAmounts[estimateNum] ?? viewValue ?? ""
-                            // }
+                            defaultValue={amountValue}
                             onChange={(e) =>
                               setEditedAmounts((prev) => ({
                                 ...prev,
@@ -669,8 +671,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              const newAmount =
-                                editedAmounts[estimateNum] ?? value ?? "";
+                              const newAmount = amountValue;
                               sendEstimate(estimateNum, value, newAmount);
                             }}
                           >

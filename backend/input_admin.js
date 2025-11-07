@@ -51,7 +51,7 @@ function adminPostEntry(data) {
   try {
     const action = data.action;
     if (!action) return errorResponse("Action is required");
- 
+
     if (action.includes("updateEstimate")) {
       return updateAdminValue(data);
     } else if (action.includes("sendToSalesManager")) {
@@ -556,22 +556,6 @@ function validateManagerUpdate(data) {
 
 // ✅ 신규 함수: 이메일 발송 및 상태 업데이트
 function sendEmailToSalesManager(data) {
-  if (!data) {
-    data = {
-      row: {
-        estimateNum: 1,
-        status: "접수",
-        department: "",
-        manager: "김희수",
-        salesManager: "김희수",
-        requestDate: "2025-09-17T04:55:24.591Z",
-        rawText:
-          "업체명: AJ\n지역: 서울 송파구\n1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장\n2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원 / 인쇄: 안함\n요청사항: 납기 일정 회신 부탁드립니다.",
-        mailStatus: "발송 전",
-      },
-    };
-  }
-
   if (data?.row.requestDate) {
     const isoString = data.row.requestDate;
     const date = new Date(isoString);
@@ -611,13 +595,25 @@ function sendEmailToSalesManager(data) {
         <p>요청하신 ${data.row.estimateNum}번 견적 요청이 접수되었습니다.</p>  
     
         <table style="border-collapse:collapse; margin-top:12px; width:100%; font-size:14px;">
-          <tr><td><b>견적 담당자</b></td><td>${data.row.manager | ""}</td></tr>
-          <tr><td><b>견적 요청일</b></td><td>${
+          <tr><th style="width: 100px; background:#eee; padding: 10px; text-align: center;"><b>견적 담당자</b></th>
+          <td style="width: 200px; background:#fff;">${
+            data.row.manager | ""
+          }</td></tr>
+          <tr><th style="width: 100px; background:#eee; padding: 10px; text-align: center;"><b>견적 요청일</b></th>
+          <td style="width: 200px; background:#fff;">${
             data.row.requestDate || ""
           }</td></tr>
-          <tr><td><b>견적 요청 본문</b></td>\n<td style="white-space: pre-line">${
+          <tr><th style="width: 100px; background:#eee; padding: 10px; text-align: center;"><b>견적담당자 비고</b></th>
+          <td style="width: 200px; background:#fff;">${
+            data.row.quoteMemo || ""
+          }</td></tr>
+          <tr><th style="width: 100px; background:#eee; padding: 10px; text-align: center;"><b>견적 금액</b></th>
+          <td style="width: 200px; background:#fff;">${data.row.quoteAmount
+            .toString()
+            .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td></tr> 
+          <tr><th style="width: 100px; background:#eee; padding: 10px; text-align: center;"><b>견적 요청 본문</b></th><td style="width: 200px; background:#fff;">${
             data.row.rawText || ""
-          }</td></tr> 
+          }</td></tr>
         </table>
     <p>기타 사항은 견적 담당자에게 문의해 주십시오.</p> 
   </body> 

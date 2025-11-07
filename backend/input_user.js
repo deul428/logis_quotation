@@ -1,6 +1,6 @@
 // ============================================
 // 견적 관리 자동화 시스템 - 구글 폼 응답 처리 버전
-// ============================================ 
+// ============================================
 // 특정 스프레드시트 ID 지정
 // const SPREADSHEET_ID = "1DWMrJob6_EDVWHBIMRx3Ee67sekKQQcu8gU8ir21mc8";
 
@@ -575,8 +575,8 @@ function parseKakaoText(text) {
     인쇄: "",
     "색상,도수": "",
     공급사: "",
-    "견적요청비고": "",
-    기타요청: "",
+    견적요청비고: "",
+    기타요청: "", 
   };
 
   const lines = text.split("\n");
@@ -820,7 +820,8 @@ function insertToFinalSheet(
         "수주여부",
         "원본데이터",
         "견적 금액",
-        "메일 발송 상태"
+        "견적담당자 비고",
+        "메일 발송 상태",
       ];
       finalSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     }
@@ -828,37 +829,38 @@ function insertToFinalSheet(
     const estimateNum = generateEstimateNum(finalSheet);
 
     const rowData = [
-      estimateNum,                                    // 견적번호
-      "접수",                                        // 상태
-      "",                                           // 부서(팀)
-      salesManager,                                 // 영업담당자
-      manager.name,                                 // 견적담당자
-      timestamp || new Date(),                      // 요청일
-      "",                                           // 회신일
-      "",                                           // 견적 유효기간
-      parsedData["업체명"],                         // 업체명
-      parsedData["대분류"],                         // 대분류
-      parsedData["상품"],                           // 상품
-      parsedData["규격(스팩)"],                     // 규격(스팩)
-      "",                                           // 영업 정보
-      parsedData["견적요청비고"],           // 견적요청비고
-      "",                                           // 추가 정보 필요사항
-      "",                                           // 샘플 필요여부
-      parsedData["인쇄"],                           // 인쇄
-      parsedData["색상,도수"],                      // 색상,도수
-      parsedData["MOQ"],                            // MOQ
-      parsedData["사용량(월평균)"],                // 사용량(월평균)
-      parsedData["사용금액(월평균)"],              // 사용금액(월평균)
-      parsedData["지역(착지)"],                     // 지역(착지)
-      parsedData["기타요청"],                       // 기타요청
-      parsedData["견적가(매입)"],                   // 견적가(매입)
-      "",                                           // 제안규격
-      "",                                           // MOQ2
-      parsedData["공급사"],                         // 공급사
-      "",                                           // 수주여부
-      rawText || "",                                // 원본데이터
-      "",                                           // 견적 금액
-      "발송 전"
+      estimateNum, // 견적번호
+      "접수", // 상태
+      "", // 부서(팀)
+      salesManager, // 영업담당자
+      manager.name, // 견적담당자
+      timestamp || new Date(), // 요청일
+      "", // 회신일
+      "", // 견적 유효기간
+      parsedData["업체명"], // 업체명
+      parsedData["대분류"], // 대분류
+      parsedData["상품"], // 상품
+      parsedData["규격(스팩)"], // 규격(스팩)
+      "", // 영업 정보
+      parsedData["견적요청비고"], // 견적요청비고
+      "", // 추가 정보 필요사항
+      "", // 샘플 필요여부
+      parsedData["인쇄"], // 인쇄
+      parsedData["색상,도수"], // 색상,도수
+      parsedData["MOQ"], // MOQ
+      parsedData["사용량(월평균)"], // 사용량(월평균)
+      parsedData["사용금액(월평균)"], // 사용금액(월평균)
+      parsedData["지역(착지)"], // 지역(착지)
+      parsedData["기타요청"], // 기타요청
+      parsedData["견적가(매입)"], // 견적가(매입)
+      "", // 제안규격
+      "", // MOQ2
+      parsedData["공급사"], // 공급사
+      "", // 수주여부
+      rawText || "", // 원본데이터
+      "", // 견적 금액
+      "", //견적담당자 비고
+      "발송 전",
     ];
 
     finalSheet.appendRow(rowData);
@@ -874,12 +876,14 @@ function insertToFinalSheet(
 }
 // 신규 함수: 이메일 발송
 function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
-/*   manager = { name: '김희수', email: 'kimhs@ajnet.co.kr' }
+  /*   manager = { name: '김희수', email: 'kimhs@ajnet.co.kr' }
   salesManager = "김희수"
   parsedData = {}
   estimateNum = 9999 */
   try {
-    const subject = `신규 견적 요청 (#${estimateNum}) - ${parsedData["업체명"] || "미기입"}`;
+    const subject = `신규 견적 요청 (#${estimateNum}) - ${
+      parsedData["업체명"] || "미기입"
+    }`;
 
     const bodyText = ``;
 
@@ -887,20 +891,28 @@ function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
 <html>
   <body style="font-family:'Noto Sans KR', Pretendard, sans-serif; color:#333;">
     <p style="font-size:12px; color:#777;">본 메일은 시스템에서 자동 발송되었습니다.</p> 
-    <h2 style="color:#EF3340;">신규 견적 요청 안내</h2> <p>안녕하세요, <strong>${manager.name}</strong>님.
+    <h2 style="color:#EF3340;">신규 견적 요청 안내</h2> <p>안녕하세요, <strong>${
+      manager.name
+    }</strong>님.
     <p>새로운 견적 요청이 접수되었습니다.</p>
 <table style="border-collapse:collapse; margin-top:12px; width:100%; font-size:14px;">
          <tr><td><b>영업 담당자</b></td><td>${salesManager}</td></tr>
          <tr><td><b>업체명</b></td><td>${parsedData["업체명"] || "-"}</td></tr>
          <tr><td><b>상품</b></td><td>${parsedData["상품"] || "-"}</td></tr>
-         <tr><td><b>규격</b></td><td>${parsedData["규격(스팩)"] || "-"}</td></tr>
-         <tr><td><b>사용금액(월평균)</b></td><td>${parsedData["사용금액(월평균)"] || "-"}</td></tr>
-         <tr><td><b>요청일</b></td><td>${new Date().toLocaleString("ko-KR")}</td></tr>
+         <tr><td><b>규격</b></td><td>${
+           parsedData["규격(스팩)"] || "-"
+         }</td></tr>
+         <tr><td><b>사용금액(월평균)</b></td><td>${
+           parsedData["사용금액(월평균)"] || "-"
+         }</td></tr>
+         <tr><td><b>요청일</b></td><td>${new Date().toLocaleString(
+           "ko-KR"
+         )}</td></tr>
        </table>
 
     <p>자세한 내용은 로지스 견적 요청 시스템에서 확인해 주시기 바랍니다.</p> 
   </body>
-</html>`
+</html>`;
     /*    
        <p>안녕하세요, <strong>${manager.name}</strong>님.</p>
        
@@ -919,7 +931,6 @@ function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
     Logger.log("메일 전송 오류: " + error);
   }
 }
-
 
 // 설문지 응답 처리상태 업데이트
 function updateFormResponseStatus(sheet, row, status) {
@@ -940,7 +951,13 @@ function updateFormResponseStatus(sheet, row, status) {
 }
 
 // 원본 데이터 처리 메인 함수 (구글 폼 응답용으로 수정)
-function processRawData(rawText, timestamp, salesManager, sourceRow, sourceSheet) {
+function processRawData(
+  rawText,
+  timestamp,
+  salesManager,
+  sourceRow,
+  sourceSheet
+) {
   try {
     console.log("=== 구글 폼 응답 데이터 처리 시작 ===");
     console.log("원본 텍스트:", rawText);
