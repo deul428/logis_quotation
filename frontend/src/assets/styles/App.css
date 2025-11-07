@@ -19,6 +19,7 @@ body {
   justify-content: center;
   align-items: center;
   overflow: auto;
+  letter-spacing: -0.01rem;
 }
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",

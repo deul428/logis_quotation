@@ -1,4 +1,13 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  MdOutlineKeyboardArrowUp,
+  MdOutlineKeyboardArrowDown,
+  MdLogout,
+} from "react-icons/md";
+import ci from "./assets/img/logo.svg";
+import user from "./assets/img/i_user.svg";
+import { LuCircleUserRound } from "react-icons/lu";
+import { IoMdArrowDropdown } from "react-icons/io";
 interface ChatTitleProps {
   tabData: string;
   setTabData: React.Dispatch<React.SetStateAction<string>>;
@@ -34,6 +43,9 @@ const Header = ({ tabData, setTabData }: ChatTitleProps) => {
           관리자용
         </button>
       </div>
+      <div className="heading_area">
+        <img className="ci" src={ci} alt="AJ 로고" />
+      </div>
       <div
         className="info_area"
         style={
@@ -42,8 +54,12 @@ const Header = ({ tabData, setTabData }: ChatTitleProps) => {
             : { display: "none" }
         }
       >
-        {loggedIn === "true" ? <span>{userId} 님, 안녕하세요!</span> : <></>}
+        <div className="login_info">
+          <img className="user" src={user} alt="user_profile" />
+          <p>{userId}</p>
+        </div>
         <button
+          className="logout"
           style={
             loggedIn === "true"
               ? { background: "#5278e7" }
@@ -54,14 +70,14 @@ const Header = ({ tabData, setTabData }: ChatTitleProps) => {
           onClick={() => {
             if (
               loggedIn === "true" &&
-              window.confirm("정말 로그아웃하시겠습니까?")
+              window.confirm("로그아웃하시겠습니까?")
             ) {
               localStorage.setItem("isLoggedIn", "false");
               navigate("/login");
             }
           }}
         >
-          {loggedIn === "true" ? "로그아웃" : "로그인"}
+          {loggedIn === "true" ? <MdLogout /> : "로그인"}
         </button>
       </div>
     </div>

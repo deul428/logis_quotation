@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-// import { useLocation, useNavigate } from "react-router-dom";
 import "./assets/styles/admin.scss";
 import "./assets/styles/loader.css";
 import "./assets/styles/common.scss";
@@ -8,8 +7,10 @@ import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 import {
   MdOutlineKeyboardArrowUp,
   MdOutlineKeyboardArrowDown,
+  MdLogout,
 } from "react-icons/md";
 import { IoReload } from "react-icons/io5";
+import { useLocation, useNavigate } from "react-router-dom";
 interface FetchResponse {
   status: string;
   message?: string;
@@ -24,14 +25,22 @@ const API_URL = "https://icy-sea-0bb9.kkhhsq.workers.dev";
 
 const DEFAULT_COLUMNS = [
   "견적번호",
-  "상태",
+  // "상태",
   "영업담당자",
   "견적담당자",
   "요청일",
   "업체명",
   "상품",
   "규격(스팩)",
-  /*   "비고" ||  */ "비고(제품 추가 정보)",
+  // "견적요청비고",
+  "인쇄",
+  "사용량(월평균)",
+  "사용금액(월평균)",
+  "지역(착지)",
+  "기타요청",
+  "견적가(매입)",
+  "공급사",
+  "견적담당자 비고",
   "견적 금액",
 ];
 
@@ -40,14 +49,15 @@ const Admin: React.FC<any> = () => {
   // const location = useLocation();
   // const userName = localStorage.getItem("userName");
 
-  const [status, setStatus] = useState<string>("⏳ 데이터 불러오는 중...");
   const [allColumns, setAllColumns] = useState<string[]>([]);
   const [activeColumns, setActiveColumns] = useState<string[]>([]);
   const [data, setData] = useState<string[][]>([]);
   const [sortColumn, setSortColumn] = useState<string | null>("요청일");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-
-  const [isSend, setIsSend] = useState<boolean>(false);
+  const [searchManager, setSearchManager] = useState<string>("");
+  const [searchSalesManager, setSearchSalesManager] = useState<string>("");
+  const [searchCompany, setSearchCompany] = useState<string>("");
+  const [searchReqDate, setSearchReqDate] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Record<string, string> | null>(
@@ -57,6 +67,12 @@ const Admin: React.FC<any> = () => {
   const [editedAmounts, setEditedAmounts] = useState<Record<string, string>>(
     {}
   );
+
+  const [editedMemo, setEditedMemo] = useState<Record<string, string>>({});
+  const navigate = useNavigate();
+  const loggedIn = localStorage.getItem("isLoggedIn");
+  const userId = localStorage.getItem("userId");
+  const location = useLocation();
   useEffect(() => {
     loadData();
 
@@ -85,16 +101,14 @@ const Admin: React.FC<any> = () => {
         setActiveColumns(
           tableData[0].filter((h) => DEFAULT_COLUMNS.includes(h))
         );
-        setStatus("");
         // setTimeout(() => handleSort("요청일"), 0);
-      } else {
-        setStatus(json.message || "데이터 로드 실패");
       }
     } catch (err) {
       console.error("loadData 오류:", err);
-      setStatus("❌ 데이터 불러오기 실패");
     } finally {
       setLoading(false);
+      setEditedAmounts({});
+      setEditedMemo({});
     }
   };
   // 열 토글
@@ -103,7 +117,7 @@ const Admin: React.FC<any> = () => {
       prev.includes(col) ? prev.filter((c) => c !== col) : [...prev, col]
     );
   };
-  useEffect(() => { 
+  useEffect(() => {
     if (data.length > 1) {
       renderTable();
     }
@@ -186,7 +200,7 @@ const Admin: React.FC<any> = () => {
     }
 
     const confirmSend = window.confirm(
-      `견적번호 ${estimateNum}의 금액을 ${newAmount}으로 저장할까요?`
+      `${estimateNum}번 견적번호의 금액을 저장하시겠습니까?`
     );
     if (!confirmSend) return;
 
@@ -194,7 +208,7 @@ const Admin: React.FC<any> = () => {
 
     const payload = {
       mode: "admin",
-      action: "updateEstimate",
+      action: "updateEstimate-cost",
       estimateNum,
       newAmount,
     };
@@ -217,133 +231,114 @@ const Admin: React.FC<any> = () => {
       }, 3000);
     }
   };
+  const sendMemo = async (
+    estimateNum: string,
+    pastMemo: string,
+    newMemo: string
+  ) => {
+    console.log(estimateNum, pastMemo, newMemo);
+    if (!newMemo.toString().trim()) {
+      alert("비고를 입력하세요.");
+      return;
+    }
+    if (pastMemo.toString().trim() === newMemo.toString().trim()) {
+      alert("비고를 변경해 주세요.");
+      return;
+    }
 
-  // 영업 담당자 이메일 발송
-  // const sendEmailToSalesManager = async (rowObj: object, e: any) => {
-  //   // key 변환 매핑 테이블
-  //   const keyMap: Record<string, string> = {
-  //     견적번호: "estimateNum",
-  //     상태: "status",
-  //     "부서(팀)": "department",
-  //     영업담당자: "salesManager",
-  //     견적담당자: "manager",
-  //     요청일: "requestDate",
-  //     회신일: "replyDate",
-  //     "견적 유효기간": "validUntil",
-  //     업체명: "company",
-  //     대분류: "category",
-  //     상품: "product",
-  //     "규격(스팩)": "spec",
-  //     "영업 정보": "salesInfo",
-  //     비고: "note",
-  //     "추가 정보 필요사항": "extraInfo",
-  //     "샘플 필요여부": "sampleRequired",
-  //     인쇄: "printing",
-  //     "색상,도수": "color",
-  //     MOQ: "moq",
-  //     "사용량\n (月 평균)": "monthlyUsage",
-  //     "사용금액\n (月 평균)": "monthlyAmount",
-  //     "지역(착지)": "region",
-  //     기타요청: "requestNote",
-  //     "견적가(매입)": "purchasePrice",
-  //     제안규격: "proposedSpec",
-  //     공급사: "supplier",
-  //     수주여부: "orderStatus",
-  //     원본데이터: "rawText",
-  //     "견적 금액": "quoteAmount",
-  //     "메일 발송 상태": "mailStatus",
-  //   };
-  //   function convertKeysToEnglish(obj: Record<string, any>) {
-  //     const result: Record<string, any> = {};
-  //     Object.entries(obj).forEach(([key, value]) => {
-  //       const newKey = keyMap[key] || key;
-  //       result[newKey] = value;
-  //     });
-  //     return result;
-  //   }
-  //   const row = convertKeysToEnglish(rowObj);
+    const confirmSend = window.confirm(
+      `${estimateNum}번 견적번호의 비고를 저장하시겠습니까?`
+    );
+    if (!confirmSend) return;
 
-  //   if (!row.salesManager) {
-  //     alert("영업 담당자가 기입되지 않았습니다.\n다시 확인해 주세요.");
-  //     return;
-  //   }
-  //   // console.log(row, row.estimateNum, row.salesManager);
-  //   if (!window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")) {
-  //     return;
-  //   } else {
-  //     console.log(editedAmounts[row.estimateNum])
-  //     if (editedAmounts[row.estimateNum] && editedAmounts[row.estimateNum] !== row.quoteAmount) {
-  //       row.quoteAmount = editedAmounts[row.estimateNum];
-  //     }
-  //     try {
-  //       const payload = {
-  //         mode: "admin",
-  //         action: "sendToSalesManager",
-  //         row,
-  //       };
-  //       const res = await fetch(API_URL, {
-  //         method: "POST",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify(payload),
-  //       });
+    setLoading(true);
 
-  //       alert("발송이 완료되었습니다.");
-  //       setIsSend(true);
-  //       console.log("res:", res);
-  //     } catch (e) {
-  //       alert("오류가 발생했습니다. " + e);
-  //       throw new Error("오류가 발생했습니다. " + e);
-  //     } finally {
-  //       setLoading(true);
-  //       setTimeout(() => {
-  //         loadData();
-  //       }, 2000);
-  //     }
-  //   }
-  // };
+    const payload = {
+      mode: "admin",
+      action: "updateEstimate-memo",
+      estimateNum,
+      newMemo,
+    };
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.text();
+      console.log("서버 응답:", result);
+      alert("✅ 비고 저장 완료");
+    } catch (err) {
+      console.error("전송 오류:", err);
+      alert("❌ 서버 전송 실패");
+    } finally {
+      setLoading(true);
+      setTimeout(() => {
+        loadData();
+      }, 3000);
+    }
+  };
+  // ✅ 한글 key 정규화 함수 (공백/괄호/개행 등 제거)
+  const normalizeKey = (key: string) => {
+    return key
+      .replace(/\s+/g, "") // 공백 제거
+      .replace(/\n/g, "") // 줄바꿈 제거
+      .replace(/[()]/g, "") // 괄호 제거
+      .trim();
+  };
+  const keyMap: Record<string, string> = {};
+  [
+    ["견적번호", "estimateNum"],
+    ["상태", "status"],
+    ["부서(팀)", "department"],
+    ["영업담당자", "salesManager"],
+    ["견적담당자", "manager"],
+    ["요청일", "requestDate"],
+    ["회신일", "replyDate"],
+    ["견적유효기간", "validUntil"],
+    ["업체명", "company"],
+    ["대분류", "category"],
+    ["상품", "product"],
+    ["규격스팩", "spec"],
+    ["영업정보", "salesInfo"],
+    ["비고", "note"],
+    ["추가정보필요사항", "extraInfo"],
+    ["샘플필요여부", "sampleRequired"],
+    ["인쇄", "printing"],
+    ["색상도수", "color"],
+    ["MOQ", "moq"],
+    ["사용량월평균", "monthlyUsage"],
+    ["사용금액월평균", "monthlyAmount"],
+    ["지역착지", "region"],
+    ["기타요청", "requestNote"],
+    ["견적가매입", "purchasePrice"],
+    ["제안규격", "proposedSpec"],
+    ["공급사", "supplier"],
+    ["수주여부", "orderStatus"],
+    ["원본데이터", "rawText"],
+    ["견적금액", "quoteAmount"],
+    ["견적담당자비고", "quoteMemo"],
+    ["메일발송상태", "mailStatus"],
+  ].forEach(([kor, eng]) => {
+    keyMap[normalizeKey(kor)] = eng;
+  });
+
+  useEffect(() => {
+    console.log(editedMemo, editedAmounts);
+  }, [editedMemo, editedAmounts]);
   // 영업 담당자 이메일 발송 (견적 금액 자동 반영 포함)
   const sendEmailToSalesManager = async (
     rowObj: Record<string, any>,
     e: any
   ) => {
-    const keyMap: Record<string, string> = {
-      견적번호: "estimateNum",
-      상태: "status",
-      "부서(팀)": "department",
-      영업담당자: "salesManager",
-      견적담당자: "manager",
-      요청일: "requestDate",
-      회신일: "replyDate",
-      "견적 유효기간": "validUntil",
-      업체명: "company",
-      대분류: "category",
-      상품: "product",
-      "규격(스팩)": "spec",
-      "영업 정보": "salesInfo",
-      비고: "note",
-      "추가 정보 필요사항": "extraInfo",
-      "샘플 필요여부": "sampleRequired",
-      인쇄: "printing",
-      "색상,도수": "color",
-      MOQ: "moq",
-      "사용량\n (月 평균)": "monthlyUsage",
-      "사용금액\n (月 평균)": "monthlyAmount",
-      "지역(착지)": "region",
-      기타요청: "requestNote",
-      "견적가(매입)": "purchasePrice",
-      제안규격: "proposedSpec",
-      공급사: "supplier",
-      수주여부: "orderStatus",
-      원본데이터: "rawText",
-      "견적 금액": "quoteAmount",
-      "메일 발송 상태": "mailStatus",
-    };
+    // ✅ 안전하게 정규화된 keyMap
 
-    // 한글 → 영문 key 변환
+    // ✅ 한글 → 영문 key 변환 함수
     const convertKeysToEnglish = (obj: Record<string, any>) => {
       const result: Record<string, any> = {};
       Object.entries(obj).forEach(([key, value]) => {
-        const newKey = keyMap[key] || key;
+        const normalizedKey = normalizeKey(key); // 💡 여기서 한글 key 정규화
+        const newKey = keyMap[normalizedKey] || normalizedKey;
         result[newKey] = value;
       });
       return result;
@@ -351,13 +346,15 @@ const Admin: React.FC<any> = () => {
 
     const row = convertKeysToEnglish(rowObj);
     const estimateNum = row.estimateNum;
-    const inputValue = editedAmounts[estimateNum]; // 사용자가 수정한 input 값
+    const newAmount = editedAmounts[estimateNum]; // 사용자가 수정한 input 값
     const amount = row.quoteAmount || "";
+    const newMemo = editedMemo[estimateNum]; // 사용자가 수정한 input 값
+    const memo = row.quoteMemo || "";
 
     // 1️⃣ 견적 금액 자동 반영 로직
-    if (inputValue && inputValue !== amount) {
+    /*     if (inputValue && inputValue !== amount) {
       const confirmUpdate = window.confirm(
-        `견적 금액(${inputValue})을 저장한 후 메일을 발송할까요?`
+        `견적 금액을 저장한 후 메일을 발송할까요?`
       );
       if (confirmUpdate) {
         try {
@@ -387,21 +384,50 @@ const Admin: React.FC<any> = () => {
         }
       }
     }
+ */
+    if ((newAmount && newAmount !== amount) || (newMemo && newMemo !== memo)) {
+      const confirmUpdate = window.confirm(
+        `행에 저장되지 않은 값이 있습니다. 값을 먼저 업데이트하신 후 메일을 발송하시겠습니까?`
+      );
+      let action = "";
+      if (newMemo && !newAmount) {
+        action = "memo";
+      } else if (!newMemo && newAmount) {
+        action = "cost";
+      } else {
+        action = "all";
+      }
+      if (confirmUpdate) {
+        try {
+          const payload = {
+            mode: "admin",
+            action: `updateEstimate-${action}`,
+            estimateNum,
+            newAmount: newAmount,
+            newMemo: newMemo,
+          };
 
-    if (!row.quoteAmount) {
-      if (
-        !window.confirm(
-          "견적 금액이 기입되지 않았습니다. 이대로 영업 담당자에게 발송하시겠습니까?"
-        )
-      ) {
-        return;
+          // 업데이트 먼저 수행
+          const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          const text = await res.text();
+          alert("행 업데이트가 반영되었습니다.");
+
+          // ⚠️ 백엔드(GAS) 반영 대기
+          await new Promise((r) => setTimeout(r, 1200));
+        } catch (err) {
+          console.error("행 업데이트 중 오류:", err);
+          alert("행 업데이트 중 오류가 발생했습니다.");
+          return;
+        }
       }
-    } else {
-      if (
-        !window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")
-      ) {
-        return;
-      }
+    }
+
+    if (!window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")) {
+      return;
     }
     if (!row.salesManager) {
       alert("영업 담당자가 기입되지 않았습니다.\n다시 확인해 주세요.");
@@ -438,54 +464,124 @@ const Admin: React.FC<any> = () => {
   // 테이블 렌더링
   const renderTable = () => {
     if (!data || data.length === 0) {
-      if (status !== "⏳ 데이터 불러오는 중...") {
-        return <p>데이터 없음</p>;
-      }
       return;
     }
     const header = data[0];
-    if (data[0][13]?.toString() === "비고(제품 추가 정보)") {
-      data[0][13] = "비고";
-    }
     const rows = data.slice(1);
+
+    // ✅ 각 필터에 해당하는 열 인덱스 찾기
+    const managerColIndex = header.indexOf("견적담당자");
+    const salesManagerColIndex = header.indexOf("영업담당자");
+    const companyColIndex = header.indexOf("업체명");
+    const reqDateColIndex = header.indexOf("요청일");
+
+    // ✅ 여러 검색어가 있으면 AND 조건으로 필터링
+    const filteredRows = rows.filter((row) => {
+      // 견적 담당자 필터
+      if (searchManager.trim() !== "") {
+        const cellValue = row[managerColIndex];
+        if (!cellValue) return false;
+        if (
+          !String(cellValue).toLowerCase().includes(searchManager.toLowerCase())
+        ) {
+          return false;
+        }
+      }
+
+      // 영업 담당자 필터
+      if (searchSalesManager.trim() !== "") {
+        const cellValue = row[salesManagerColIndex];
+        if (!cellValue) return false;
+        if (
+          !String(cellValue)
+            .toLowerCase()
+            .includes(searchSalesManager.toLowerCase())
+        ) {
+          return false;
+        }
+      }
+
+      // 업체명 필터
+      if (searchCompany.trim() !== "") {
+        const cellValue = row[companyColIndex];
+        if (!cellValue) return false;
+        if (
+          !String(cellValue).toLowerCase().includes(searchCompany.toLowerCase())
+        ) {
+          return false;
+        }
+      }
+      // 요청일 필터
+      if (searchReqDate.trim() !== "") {
+        const cellValue = row[reqDateColIndex];
+        console.log(searchReqDate);
+        if (!cellValue) return false;
+        if (
+          !String(cellValue).toLowerCase().includes(searchReqDate.toLowerCase())
+        ) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
     const enabledIndexes = header
       .map((h, i) => (activeColumns.includes(h) ? i : -1))
       .filter((i) => i >= 0);
     return (
-      <div className="table-wrapper" ref={tableRef}>
-        {loading ? (
+      <div className="table_wrapper" ref={tableRef}>
+        {/* {loading ? (
           <div className="loader_area">
             <div className="loader" />
           </div>
         ) : (
           <></>
-        )}
+        )} */}
+        <div className="list_info">
+          <h3>견적 목록</h3>
+          <button className="reload info" onClick={loadData}>
+            <IoReload />
+          </button>
+        </div>
 
         <div id="dataTable">
           <div className="thead">
             <div className="tr th_tr">
-              {enabledIndexes.map((i) => (
-                <div
-                  className="th"
-                  key={i}
-                  onClick={() => handleSort(header[i])}
-                  style={{ cursor: "pointer", userSelect: "none" }}
-                >
-                  {header[i]}
-                  {sortColumn === header[i] &&
-                    (sortDirection === "asc" ? (
-                      <MdOutlineKeyboardArrowUp fontSize={"1.5rem"} />
-                    ) : (
-                      <MdOutlineKeyboardArrowDown fontSize={"1.5rem"} />
-                    ))}
-                </div>
-              ))}
-              {/* <div className="th">견적 금액 수정</div> */}
-              <div className="th">메일 발송</div>
+              {enabledIndexes.map((i) => {
+                const colName = header[i];
+                const engKey = keyMap[normalizeKey(colName)] || "unknown";
+                return (
+                  <div
+                    className={`th ${engKey}`}
+                    key={i}
+                    onClick={() => handleSort(header[i])}
+                    style={{ cursor: "pointer", userSelect: "none" }}
+                  >
+                    {header[i].toString().replace(/ /g, "").trim() ===
+                    "사용금액(월평균)"
+                      ? "사용금액"
+                      : header[i].toString().replace(/ /g, "").trim() ===
+                        "사용량(월평균)"
+                      ? "사용량"
+                      : header[i].toString().replace(/ /g, "").trim() ===
+                        "지역(착지)"
+                      ? "도착지"
+                      : header[i]}
+                    {sortColumn === header[i] &&
+                      (sortDirection === "asc" ? (
+                        <MdOutlineKeyboardArrowUp fontSize={"1.5rem"} />
+                      ) : (
+                        <MdOutlineKeyboardArrowDown fontSize={"1.5rem"} />
+                      ))}
+                  </div>
+                );
+              })}
+              <div className="th sendMail">메일 발송</div>
             </div>
           </div>
           <div className="tbody">
-            {rows.map((row, rowIdx) => {
+            {filteredRows.map((row, rowIdx) => {
               const estimateNum = row[header.indexOf("견적번호")];
               const amount = row[header.indexOf("견적 금액")];
 
@@ -504,28 +600,70 @@ const Admin: React.FC<any> = () => {
                   {enabledIndexes.map((i) => {
                     const colName = header[i];
                     const value = row[i];
+                    const engKey = keyMap[normalizeKey(colName)] || "unknown";
 
-                    const viewValue = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                    const viewValue = value
+                      .toString()
+                      .replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
                     // ✅ “견적 금액” 열일 때만 input + 저장 버튼 포함
-                    if (colName === "견적 금액") {
+                    if (
+                      colName.toString().replace(/ /g, "").trim() ===
+                      "견적담당자비고"
+                    ) {
                       return (
                         <div
-                          className="td"
+                          className="td quoteMemo"
+                          key={i}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="text"
+                            placeholder={value}
+                            // defaultValue={value}
+
+                            onChange={(e) =>
+                              setEditedMemo((prev) => ({
+                                ...prev,
+                                [estimateNum]: e.target.value,
+                              }))
+                            }
+                          />
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const newMemo =
+                                editedMemo[estimateNum] ?? value ?? "";
+                              sendMemo(estimateNum, value, newMemo);
+                            }}
+                          >
+                            저장
+                          </button>
+                        </div>
+                      );
+                    }
+                    if (
+                      colName.toString().replace(/ /g, "").trim() === "견적금액"
+                    ) {
+                      return (
+                        <div
+                          className="td quoteAmount"
                           key={i}
                           onClick={(e) => e.stopPropagation()}
                         >
                           <input
                             type="number"
                             placeholder={viewValue}
-                            // defaultValue={value}
-                            value={editedAmounts[estimateNum] ?? viewValue ?? ""}
+                            defaultValue={value}
+                            // value={
+                            //   editedAmounts[estimateNum] ?? viewValue ?? ""
+                            // }
                             onChange={(e) =>
                               setEditedAmounts((prev) => ({
                                 ...prev,
                                 [estimateNum]: e.target.value,
                               }))
                             }
-                            style={{ width: "100px" }}
                           />
                           <button
                             onClick={(e) => {
@@ -543,14 +681,14 @@ const Admin: React.FC<any> = () => {
 
                     // ✅ 나머지 열은 기존대로 출력
                     return (
-                      <div className="td" key={i}>
+                      <div key={i} className={`td ${engKey}`}>
                         {formatCell(value)}
                       </div>
                     );
                   })}
 
                   <div
-                    className="td"
+                    className={`td sendMail`}
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
@@ -558,7 +696,10 @@ const Admin: React.FC<any> = () => {
                     <button
                       className="warning"
                       style={
-                        row[header.indexOf("메일 발송 상태")] === "발송 완료"
+                        row[header.indexOf("메일 발송 상태")]
+                          .toString()
+                          .replace(/ /g, "")
+                          .trim() === "발송완료"
                           ? { background: "#f8b568ff", color: "#402200ff" }
                           : { background: "#fd9823ff" }
                       }
@@ -593,25 +734,102 @@ const Admin: React.FC<any> = () => {
     }
   };
 
+  const searchFilter = (key: any, value: string) => {
+    console.log(value);
+    if (key === "manager") {
+      setSearchManager(value);
+    } else if (key === "salesManager") {
+      setSearchSalesManager(value);
+    } else if (key === "company") {
+      setSearchCompany(value);
+    } else if (key === "requestDate") {
+      setSearchReqDate(value);
+    }
+  };
   return (
     <div id="admin">
-      <div className="admin_header">
-        <h2>견적 관리 (관리자)</h2>
-        <button className="reload info" onClick={loadData}>
-          <IoReload />
-          {/* 표 새로고침 */}
-        </button>
-      </div>
-      <button id="top" onClick={goToTop}>
+      <button id="top" className="info" onClick={goToTop}>
         <MdKeyboardDoubleArrowUp />
       </button>
 
-      {status && <div id="status">{status}</div>}
-
+      {loading ? (
+        <div className="loader_area">
+          <div className="loader" />
+        </div>
+      ) : (
+        <></>
+      )}
+      {location.pathname.includes("admin") ? (
+        <h2>견적 관리 (관리자)</h2>
+      ) : (
+        <></>
+      )}
       {allColumns.length > 0 && (
-        <div id="columnFilter">
-          <h3>표시할 열 선택</h3>
-          <div className="labelArea">
+        <div id="search_area">
+          {/* <h3>검색</h3> */}
+          <div className="search_box">
+            <div className="th">
+              <label key="manager">견적 담당자</label>
+            </div>
+            <div className="td">
+              <input
+                data-key="manager"
+                placeholder="견적 담당자 검색"
+                type="text"
+                onChange={(e) =>
+                  searchFilter(e.target.dataset.key, e.target.value)
+                }
+              />
+            </div>
+          </div>
+          <div className="search_box">
+            <div className="th">
+              <label key="salesManager">영업 담당자</label>
+            </div>
+            <div className="td">
+              <input
+                data-key="salesManager"
+                placeholder="영업 담당자 검색"
+                type="text"
+                onChange={(e) =>
+                  searchFilter(e.target.dataset.key, e.target.value)
+                }
+              />
+            </div>
+          </div>
+          <div className="search_box">
+            <div className="th">
+              <label key="requestDate">요청일</label>
+            </div>
+            <div className="td">
+              <input
+                data-key="requestDate"
+                placeholder="요청일 검색"
+                type="date"
+                onChange={(e) =>
+                  searchFilter(e.target.dataset.key, e.target.value)
+                }
+              />
+            </div>
+          </div>
+          <div className="search_box">
+            <div className="th">
+              <label key="company">업체명</label>
+            </div>
+            <div className="td">
+              <input
+                data-key="company"
+                placeholder="업체명 검색"
+                type="text"
+                onChange={(e) =>
+                  searchFilter(e.target.dataset.key, e.target.value)
+                }
+              />
+            </div>
+          </div>
+          {/* <button onClick={() => searchFilter(searchManager)}>검색</button> */}
+
+          {/* <h3>표시할 열 선택</h3>
             {allColumns.map((col) => (
               <label key={col}>
                 <input
@@ -621,8 +839,7 @@ const Admin: React.FC<any> = () => {
                 />
                 {col}
               </label>
-            ))}
-          </div>
+            ))}  */}
         </div>
       )}
 

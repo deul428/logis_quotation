@@ -1,7 +1,8 @@
-import React, { useState, /* useEffect */ } from "react";
+import React, { useState /* useEffect */ } from "react";
 import { /* useLocation, */ useNavigate } from "react-router-dom";
 import "./assets/styles/common.scss";
 import "./assets/styles/login.scss";
+import ci from "./assets/img/logo.svg";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ const Login: React.FC = () => {
     { id: "manager", pw: "abcd", name: "매니저" },
     { id: "guest", pw: "guest", name: "게스트" },
   ];
-   const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -38,39 +39,51 @@ const Login: React.FC = () => {
     }
   };
 
-
   return (
-    <div className="login-wrap">
-      <h2>관리자 로그인</h2>
+    <div className="login_wrap">
+      <div className="login_area card">
+        <img className="ci" src={ci} alt="AJ 로고" />
 
-      <form onSubmit={handleLogin} className="login-form">
-        <input
-          type="text"
-          placeholder="아이디"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="비밀번호"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">로그인</button>
-      </form>
+        <h2>
+          AJ네트웍스 견적 요청<br></br>관리자 로그인
+        </h2>
+        <h4>관리자 서비스 이용을 위해 로그인해 주세요.</h4>
 
-      {error && <p className="error-msg">{error}</p>}
+        <form onSubmit={handleLogin} className="login_form">
+          <div className="login_box">
+            <label>아이디</label>
+            <input
+              type="text"
+              placeholder="아이디"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+          <div className="login_box">
+            <label>비밀번호</label>
+            <input
+              type="password"
+              placeholder="비밀번호"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          <button type="submit">로그인</button>
+        </form>
 
-      <div className="login-hint">
-        <p>💡 테스트 계정</p>
-        <ul>
-          <li>admin / 1234</li>
-          <li>manager / abcd</li>
-          <li>guest / guest</li>
-        </ul>
+        {error && <p className="error-msg">{error}</p>}
+
+        <div className="login-hint">
+          <p>💡 테스트 계정</p>
+          <ul>
+            <li>admin / 1234</li>
+            <li>manager / abcd</li>
+            <li>guest / guest</li>
+          </ul>
+        </div>
       </div>
     </div>
-  ); 
+  );
 };
 
 export default Login;
