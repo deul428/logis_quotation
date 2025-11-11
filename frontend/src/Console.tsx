@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import "./assets/styles/admin.scss";
+import "./assets/styles/console.scss";
 import "./assets/styles/loader.css";
 import "./assets/styles/common.scss";
-import AdminDetail from "./AdminDetail.tsx";
+import ConsoleDetail from "./ConsoleDetail.tsx";
 import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 import {
   MdOutlineKeyboardArrowUp,
@@ -45,7 +45,7 @@ const DEFAULT_COLUMNS = [
   "견적 금액",
 ];
 
-const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
+const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   // const navigate = useNavigate();
   // const location = useLocation();
   // const userName = localStorage.getItem("userName");
@@ -53,7 +53,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   const [allColumns, setAllColumns] = useState<string[]>([]);
   const [activeColumns, setActiveColumns] = useState<string[]>([]);
   const [data, setData] = useState<string[][]>([]);
-  const [sortColumn, setSortColumn] = useState<string | null>("요청일");
+  const [sortColumn, setSortColumn] = useState<string | null>("견적번호");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const [searchManager, setSearchManager] = useState<string>("");
   const [searchSalesManager, setSearchSalesManager] = useState<string>("");
@@ -78,7 +78,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     loadData();
 
     if (!sortColumn) {
-      handleSort("요청일");
+      handleSort("견적번호");
       setSortDirection("desc");
     }
   }, []);
@@ -86,7 +86,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}?mode=admin&action=readAll`);
+      const res = await fetch(`${API_URL}?mode=console&action=readAll`);
       const text = await res.text();
       let json: FetchResponse;
       try {
@@ -97,12 +97,40 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
 
       if (json.status === "success" && json.data) {
         const tableData = json.data;
-        setData(tableData);
         setAllColumns(tableData[0]);
         setActiveColumns(
           tableData[0].filter((h) => DEFAULT_COLUMNS.includes(h))
         );
-        // setTimeout(() => handleSort("요청일"), 0);
+
+        // 데이터 로드 후 견적번호로 내림차순 정렬
+        const header = tableData[0];
+        const body = tableData.slice(1);
+        const colIndex = header.indexOf("견적번호");
+
+        if (colIndex !== -1) {
+          const sortedBody = [...body].sort((rowA, rowB) => {
+            const valA = rowA[colIndex];
+            const valB = rowB[colIndex];
+            const strA = String(valA ?? "");
+            const strB = String(valB ?? "");
+
+            // 숫자로 정렬 시도
+            const numA = parseFloat(strA.replace(/[^0-9.-]+/g, ""));
+            const numB = parseFloat(strB.replace(/[^0-9.-]+/g, ""));
+            if (!isNaN(numA) && !isNaN(numB)) {
+              return numB - numA; // 내림차순
+            }
+
+            // 문자열로 정렬
+            return strB.localeCompare(strA, "ko"); // 내림차순
+          });
+
+          setData([header, ...sortedBody]);
+          setSortColumn("견적번호");
+          setSortDirection("desc");
+        } else {
+          setData(tableData);
+        }
       }
     } catch (err) {
       console.error("loadData 오류:", err);
@@ -203,7 +231,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     setLoading(true);
 
     const payload = {
-      mode: "admin",
+      mode: "console",
       action: "updateEstimate-cost",
       estimateNum,
       newAmount,
@@ -250,7 +278,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     setLoading(true);
 
     const payload = {
-      mode: "admin",
+      mode: "console",
       action: "updateEstimate-memo",
       estimateNum,
       newMemo,
@@ -342,11 +370,11 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
 
     const row = convertKeysToEnglish(rowObj);
     const estimateNum = row.estimateNum;
-    const newAmount = editedAmounts[estimateNum]  // 사용자가 수정한 input 값
+    const newAmount = editedAmounts[estimateNum]; // 사용자가 수정한 input 값
     const amount = row.quoteAmount || "";
     const newMemo = editedMemo[estimateNum]; // 사용자가 수정한 input 값
     const memo = row.quoteMemo || "";
- 
+
     // 1️⃣ 견적 금액 자동 반영 로직
     /*     if (inputValue && inputValue !== amount) {
       const confirmUpdate = window.confirm(
@@ -355,7 +383,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       if (confirmUpdate) {
         try {
           const payload = {
-            mode: "admin",
+            mode: "console",
             action: "updateEstimate",
             estimateNum,
             newAmount: inputValue,
@@ -381,8 +409,10 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       }
     }
  */
-    if ((newAmount && newAmount !== amount.toString()) || (newMemo && newMemo !== memo)) {
-      
+    if (
+      (newAmount && newAmount !== amount.toString()) ||
+      (newMemo && newMemo !== memo)
+    ) {
       const confirmUpdate = window.confirm(
         `행에 저장되지 않은 값이 있습니다. 값을 먼저 업데이트하신 후 메일을 발송하시겠습니까?`
       );
@@ -397,7 +427,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       if (confirmUpdate) {
         try {
           const payload = {
-            mode: "admin",
+            mode: "console",
             action: `updateEstimate-${action}`,
             estimateNum,
             newAmount: newAmount,
@@ -432,7 +462,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     }
 
     try {
-      if (Number(newAmount) !== Number(row.quoteAmount)){
+      if (Number(newAmount) !== Number(row.quoteAmount)) {
         row.quoteAmount = Number(newAmount);
       }
       if (row.quoteMemo !== newMemo) {
@@ -440,7 +470,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       }
 
       const payload = {
-        mode: "admin",
+        mode: "console",
         action: "sendToSalesManager",
         row,
       };
@@ -736,6 +766,12 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     }
   };
 
+  const clearFilter = () => {
+    setSearchManager("");
+    setSearchSalesManager("");
+    setSearchCompany("");
+    setSearchReqDate("");
+  };
   const searchFilter = (key: any, value: string) => {
     console.log(value);
     if (key === "manager") {
@@ -751,7 +787,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   return (
     <>
       <Header tabData={tabData} setTabData={setTabData} />
-      <div id="admin">
+      <div id="console">
         <button id="top" className="info" onClick={goToTop}>
           <MdKeyboardDoubleArrowUp />
         </button>
@@ -763,7 +799,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
         ) : (
           <></>
         )}
-        {location.pathname.includes("admin") ? (
+        {location.pathname.includes("console") ? (
           <h2>견적 관리 (관리자)</h2>
         ) : (
           <></>
@@ -780,6 +816,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                   data-key="manager"
                   placeholder="견적 담당자 검색"
                   type="text"
+                  value={searchManager}
                   onChange={(e) =>
                     searchFilter(e.target.dataset.key, e.target.value)
                   }
@@ -795,6 +832,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                   data-key="salesManager"
                   placeholder="영업 담당자 검색"
                   type="text"
+                  value={searchSalesManager}
                   onChange={(e) =>
                     searchFilter(e.target.dataset.key, e.target.value)
                   }
@@ -810,6 +848,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                   data-key="requestDate"
                   placeholder="요청일 검색"
                   type="date"
+                  value={searchReqDate}
                   onChange={(e) =>
                     searchFilter(e.target.dataset.key, e.target.value)
                   }
@@ -825,13 +864,15 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                   data-key="company"
                   placeholder="업체명 검색"
                   type="text"
+                  value={searchCompany}
                   onChange={(e) =>
                     searchFilter(e.target.dataset.key, e.target.value)
                   }
                 />
               </div>
             </div>
-            {/* <button onClick={() => searchFilter(searchManager)}>검색</button> */}
+
+            <button className='clear dark' onClick={() => clearFilter()}>초기화</button>
 
             {/* <h3>표시할 열 선택</h3>
             {allColumns.map((col) => (
@@ -850,7 +891,7 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
         {renderTable()}
 
         {selectedRow && (
-          <AdminDetail
+          <ConsoleDetail
             formatCell={formatCell}
             row={selectedRow}
             onClose={() => setSelectedRow(null)}
@@ -861,4 +902,4 @@ const Admin: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   );
 };
 
-export default Admin;
+export default Console;

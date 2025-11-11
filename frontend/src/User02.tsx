@@ -1,21 +1,18 @@
 import React, { useState } from "react";
 import ci from "./assets/img/logo.svg";
 import "./assets/styles/user.scss";
-const User = () => {
+const User02 = () => {
   const [salesRep, setSalesRep] = useState<string>(""); // 영업담당자
-  const fieldMsg: string = `업체명: 
-  
-지역: 
 
-1. 상품: / 규격: / 사용량: / 사용금액: / 인쇄:
-
-2. 상품: / 규격: / 사용량: / 사용금액: / 인쇄:
-
-요청사항: `;
-  const [content, setContent] = useState(fieldMsg);
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
   const [showGuide1, setShowGuide1] = useState<boolean>(false);
   const [showGuide2, setShowGuide2] = useState<boolean>(false);
+
+  const [inputCompany, setInputCompany] = useState<string>(``);
+  const [inputRegion, setInputRegion] = useState<string>(``);
+  const [inputProduct, setInputProduct] = useState<string>(``);
+  const [inputNote, setInputNote] = useState<string>(``);
+  const [content, setContent] = useState<string>("");
 
   // 폼 제출
   const handleSubmit = async (e: any) => {
@@ -53,7 +50,7 @@ const User = () => {
 
   const resetForm = () => {
     setSalesRep("");
-    setContent(fieldMsg);
+    setContent("");
     setIsSubmitted(false);
   };
 
@@ -69,27 +66,59 @@ const User = () => {
         {!isSubmitted && (
           <div id="input_area">
             <form id="customForm" onSubmit={handleSubmit}>
-              <input
-                type="text"
-                name="entry.586019235"
-                placeholder="영업 담당자 성함"
-                value={salesRep}
-                onChange={(e: any) => setSalesRep(e.target.value)}
-              />
-              <textarea
-                name="entry.1271596132"
-                rows={12}
-                placeholder={`예시)
-업체명: AJ
-지역: 서울 송파구
-1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장
-2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원
-요청사항: 납기 일정 회신 부탁드립니다.
-
-※ 정보가 없을 경우, 입력하지 않으셔도 됩니다.`}
-                value={content}
-                onChange={(e: any) => setContent(e.target.value)}
-              />
+              <div className="input_field">
+                <label>영업 담당자 성함</label>
+                <input
+                  type="text"
+                  name="entry."
+                  placeholder="ex) 김아주"
+                  value={salesRep}
+                  onChange={(e: any) => setSalesRep(e.target.value)}
+                />
+              </div>
+              <div className="input_field">
+                <label>업체명</label>
+                <input
+                  type="text"
+                  name="entry."
+                  placeholder="ex) AJ네트웍스"
+                  value={salesRep}
+                  onChange={(e: any) => setInputCompany(e.target.value)}
+                />
+              </div>
+              <div className="input_field">
+                <label>지역(착지)</label>
+                <input
+                  type="text"
+                  name="entry."
+                  placeholder="ex) 서울특별시 송파구 정의로8길 9"
+                  value={salesRep}
+                  onChange={(e: any) => setInputRegion(e.target.value)}
+                />
+              </div>
+              <div className="input_field">
+                <label>상품</label>
+                <textarea
+                  name="entry."
+                  rows={6}
+                  placeholder="**양식을 엄격하게 지켜 주시기 바랍니다. 자세한 건 아래 가이드 문서를 참고해 주세요.** 
+ex)
+1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장 
+2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원"
+                  value={salesRep}
+                  onChange={(e: any) => setInputProduct(e.target.value)}
+                />
+              </div>
+              <div className="input_field">
+                <label> 요청사항</label>
+                <textarea
+                  name="entry."
+                  rows={2}
+                  placeholder="ex) 납기 일정 회신 부탁드립니다."
+                  value={salesRep}
+                  onChange={(e: any) => setSalesRep(e.target.value)}
+                />
+              </div>
               <button type="submit">문의 요청</button>
             </form>
           </div>
@@ -187,4 +216,4 @@ const User = () => {
   );
 };
 
-export default User;
+export default User02;

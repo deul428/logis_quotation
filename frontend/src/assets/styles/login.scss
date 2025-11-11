@@ -33,22 +33,6 @@
       display: flex;
       width: 80%;
       flex-direction: column;
-      .login_box {
-        display: flex;
-        flex-direction: column;
-        margin-bottom: 1rem;
-        label {
-          font-size: 1rem;
-          font-weight: 700;
-          color: $heading-color-2;
-        }
-        input {
-          margin-bottom: 0.5rem;
-          &:nth-last-child(2) {
-            margin-bottom: 1rem;
-          }
-        }
-      }
 
       button {
         width: 100%;

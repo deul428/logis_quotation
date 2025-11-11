@@ -32,13 +32,13 @@ const Header = ({ tabData, setTabData }: ChatTitleProps) => {
           사용자용
         </button>
         <button
-          className="tab tab_admin"
+          className="tab tab_console"
           style={
-            tabData === "admin"
+            tabData === "console"
               ? { background: "#5278e7", color: "white" }
               : { background: "#eee" }
           }
-          onClick={() => setTabData("admin")}
+          onClick={() => setTabData("console")}
         >
           관리자용
         </button>
@@ -49,7 +49,7 @@ const Header = ({ tabData, setTabData }: ChatTitleProps) => {
       <div
         className="info_area"
         style={
-          location.pathname.includes("admin")
+          location.pathname.includes("console")
             ? { display: "flex" }
             : { display: "none" }
         }

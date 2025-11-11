@@ -1,6 +1,6 @@
 @import "./variables";
 
-#admin {
+#console {
   padding: 0 4rem;
   height: 100%;
   // height: calc(100% - $header-height);
@@ -38,8 +38,10 @@
     height: fit-content;
     margin-bottom: 1rem;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr) 0.2fr;
     border-top: 1px solid #000;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
     h3 {
       margin: 0;
       margin-bottom: 0.5rem;
@@ -50,13 +52,12 @@
       flex-direction: row;
       flex: 1 1 0;
       align-items: center;
-      border-bottom: 1px solid #ddd;
       .th {
         width: 20%;
         display: flex;
         align-items: center;
         background-color: #fafafa;
-        
+
         height: 100%;
         label {
           width: 100%;
@@ -80,6 +81,13 @@
         accent-color: red;
       } */
     }
+    button.clear {
+      margin: 0;
+      width: 100%;
+      height: fit-content;
+      flex: 0.5 1 0;
+      padding: 0.7rem 1rem;
+    }
   }
   .table_wrapper {
     height: calc(100% - 5dvh - 2rem);
@@ -96,6 +104,13 @@
       button.reload {
         // margin-right: 0.5rem;
         width: fit-content;
+        box-shadow: none;
+        border: none;
+        font-size: 1.5rem;
+        padding: 0 1rem;
+        &:hover {
+          color: #555;
+        }
       }
     }
     #dataTable {

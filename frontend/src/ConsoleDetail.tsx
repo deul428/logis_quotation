@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import "./assets/styles/admin.scss";
+import "./assets/styles/console.scss";
 import "./assets/styles/common.scss";
-import "./assets/styles/admin_detail.scss";
+import "./assets/styles/console_detail.scss";
 
 interface Props {
   row: Record<string, string>;
@@ -9,7 +9,7 @@ interface Props {
   formatCell: (value: string | number | null | undefined) => string; // ✅ 추가
 }
 
-const AdminDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
+const ConsoleDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
   // ESC 키로 닫기
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -20,7 +20,7 @@ const AdminDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
   }, [onClose]);
 
   return (
-    <div id="admin_detail">
+    <div id="console_detail">
       <div className="modal-overlay" onClick={onClose}>
         <div
           className="modal-content"
@@ -67,4 +67,4 @@ const AdminDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
   );
 };
 
-export default AdminDetail;
+export default ConsoleDetail;

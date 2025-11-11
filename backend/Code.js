@@ -28,13 +28,13 @@ function errorResponse(msg) {
 /**
  * GET 라우터
  * - mode=user      → 고객 입력 화면(index_user.html) 내려주기
- * - mode=admin     → 관리자 화면(index_admin.html) OR 데이터 조회(JSON) 위임
+ * - mode=console     → 관리자 화면(index_admin.html) OR 데이터 조회(JSON) 위임
  * - 그 외          → error
  */
 function doGet(e) {
   try {
-    const mode = e?.parameter?.mode || "user";   // "user" | "admin"
-    const action = e?.parameter?.action || "";       // 조회 등 admin 전용
+    const mode = e?.parameter?.mode || "user";   // "user" | "console"
+    const action = e?.parameter?.action || "";       // 조회 등 console 전용
 
     // 1) 사용자 화면
     if (mode === "user") {
@@ -46,7 +46,7 @@ function doGet(e) {
     }
 
     // 2) 관리자 모드
-    if (mode === "admin") {
+    if (mode === "console") {
       // action 없으면 그냥 관리자 UI 페이지 내려줌
       if (!action) {
         return HtmlService
@@ -73,14 +73,14 @@ function doGet(e) {
 /**
  * POST 라우터
  * - body.mode === "user"  → 고객 견적 문의 1건 전체 텍스트(rawText 등)를 파싱해서 시트 적재하고 담당자에게 메일 보내기 (=  processRawData() 파이프라인 호출)
- * - body.mode === "admin" → 관리자 페이지에서 금액/상태/담당자 갱신
+ * - body.mode === "console" → 관리자 페이지에서 금액/상태/담당자 갱신
  */
 function doPost(e) {
   try {
     const bodyText = e.postData && e.postData.contents ? e.postData.contents : "{}";
     const data = JSON.parse(bodyText);
 
-    const mode = data.mode || "user"; // "user" | "admin"
+    const mode = data.mode || "user"; // "user" | "console"
     if (data.action === 'readAll') {
       return handleReadRequest();
     }
@@ -94,7 +94,7 @@ function doPost(e) {
     }
 
     // 2) 관리자 라우팅
-    if (mode === "admin") {[]
+    if (mode === "console") {[]
       // 실제 로직은 input_admin.js의 adminPostEntry() 쪽으로 넘긴다.
       return adminPostEntry(data);
     }

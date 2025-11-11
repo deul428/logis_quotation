@@ -649,7 +649,7 @@ function sendEmailToSalesManager(data) {
        payload = {
         action: "updateEstimate",
         estimateNum: data.row.estimateNum,
-        mode: "admin",
+        mode: "console",
         newAmount: data.row.quoteAmount,
       };
       handleUpdateEstimate(payload);  

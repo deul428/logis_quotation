@@ -33,7 +33,7 @@ const Login: React.FC = () => {
       localStorage.setItem("userName", matched.name);
       localStorage.setItem("userId", matched.id);
 
-      navigate("/admin");
+      navigate("/console");
     } else {
       setError("❌ 아이디 또는 비밀번호가 올바르지 않습니다.");
     }
@@ -50,7 +50,7 @@ const Login: React.FC = () => {
         <h4>관리자 서비스 이용을 위해 로그인해 주세요.</h4>
 
         <form onSubmit={handleLogin} className="login_form">
-          <div className="login_box">
+          <div className="input_field">
             <label>아이디</label>
             <input
               type="text"
@@ -59,7 +59,7 @@ const Login: React.FC = () => {
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
-          <div className="login_box">
+          <div className="input_field">
             <label>비밀번호</label>
             <input
               type="password"
@@ -73,14 +73,14 @@ const Login: React.FC = () => {
 
         {error && <p className="error-msg">{error}</p>}
 
-        <div className="login-hint">
+       {/*  <div className="login-hint">
           <p>💡 테스트 계정</p>
           <ul>
             <li>admin / 1234</li>
             <li>manager / abcd</li>
             <li>guest / guest</li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </div>
   );
