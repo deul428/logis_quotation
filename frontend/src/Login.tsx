@@ -45,7 +45,7 @@ const Login: React.FC = () => {
         <img className="ci" src={ci} alt="AJ 로고" />
 
         <h2>
-          AJ네트웍스 견적 요청<br></br>관리자 로그인
+          로지스 유통 견적<br></br>관리자 로그인
         </h2>
         <h4>관리자 서비스 이용을 위해 로그인해 주세요.</h4>
 
