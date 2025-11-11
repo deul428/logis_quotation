@@ -30,8 +30,8 @@ const ConsoleDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
 
           <div className="modal-body">
             {row && Object.keys(row).length > 0 ? (
-              <table className="detail-table">
-                <tbody>
+              <div className="dataTable detailTable">
+                <div className="tbody">
                   {Object.entries(row).map(([key, value]) => {
                     let displayValue = value || " ";
 
@@ -45,20 +45,22 @@ const ConsoleDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
                     }
 
                     return (
-                      <tr key={key}>
-                        <th>{key}</th>
-                        <td>{displayValue}</td>
-                      </tr>
+                      <div className="tr" key={key}>
+                        <div className="th">{key}</div>
+                        <div className="td"> 
+                          {displayValue}
+                        </div>
+                      </div>
                     );
                   })}
-                </tbody>
-              </table>
+                </div>
+              </div>
             ) : (
               <p>데이터가 없습니다.</p>
             )}
           </div>
 
-          <button className="close-btn" onClick={onClose}>
+          <button className="close-btn dark" onClick={onClose}>
             닫기
           </button>
         </div>

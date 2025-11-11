@@ -579,7 +579,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
           </button>
         </div>
 
-        <div id="dataTable">
+        <div className="dataTable">
           <div className="thead">
             <div className="tr th_tr">
               {enabledIndexes.map((i) => {

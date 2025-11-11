@@ -1,3 +1,4 @@
+@import "./mixin";
 #console_detail {
   .modal-overlay {
     position: fixed;
@@ -28,38 +29,48 @@
       margin: 0 0 1rem 0;
     }
     .modal-body {
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th,
-      td {
-        border-bottom: 1px solid #ddd;
-        padding: 00.5rem;
-      }
-      th {
-        border-right: 1px solid #ddd;
-        width: 20%;
-        min-width: fit-content;
-        text-align: left;
-      }
-      td {
-        width: 70%;
-        white-space: pre-wrap;
-        word-break: break-word;
-        overflow-wrap: break-word; 
-        line-height: 1.5;
+      .detailTable {
+        .tbody {
+          .tr {
+            .th,
+            .td {
+              font-size: 0.9rem;
+              margin: 0;
+              display: flex;
+              justify-content: left;
+              align-items: center;
+              padding: 0;
+              white-space: pre;
+              height: auto;
+              max-height: unset;
+              text-overflow: unset;
+              word-break: inherit;
+              line-clamp: unset;
+              line-height: auto;
+              height: 100%;
+              padding: 0.3rem 0.5rem;
+            }
+            .th { 
+              flex: 1 1 0;
+              align-items: stretch;
+              border: none; 
+            }
+            .td {
+              background-color: white;
+              text-align: left;
+              flex: 4 1 0;
+              cursor: default;
+              &:hover {
+                background-color: inherit;
+              }
+            }
+          }
+        }
       }
     }
     button.close-btn {
       width: 100%;
       margin: 1rem auto 0 auto;
-      color: white;
-      cursor: pointer;
-      background-color: #333;
-      &:hover {
-        background-color: #444;
-      }
     }
   }
   @keyframes fadeIn {

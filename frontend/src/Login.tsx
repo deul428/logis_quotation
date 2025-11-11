@@ -12,7 +12,6 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  // ✅ 여러 개의 하드코딩된 계정 목록
   const VALID_USERS = [
     { id: "admin", pw: "1234", name: "관리자" },
     { id: "manager", pw: "abcd", name: "매니저" },
@@ -42,13 +41,14 @@ const Login: React.FC = () => {
   return (
     <div className="login_wrap">
       <div className="login_area card">
-        <img className="ci" src={ci} alt="AJ 로고" />
-
+      <button className="goToUser dark" onClick={() => navigate('/user')}>
+        견적 문의 페이지로 이동
+      </button>
+        <img className="ci" src={ci} alt="AJ 로고" /> 
         <h2>
           로지스 유통 견적<br></br>관리자 로그인
         </h2>
-        <h4>관리자 서비스 이용을 위해 로그인해 주세요.</h4>
-
+        <h4>관리자 서비스 이용을 위해 로그인해 주세요.</h4> 
         <form onSubmit={handleLogin} className="login_form">
           <div className="input_field">
             <label>아이디</label>
@@ -73,7 +73,7 @@ const Login: React.FC = () => {
 
         {error && <p className="error-msg">{error}</p>}
 
-       {/*  <div className="login-hint">
+        {/*  <div className="login-hint">
           <p>💡 테스트 계정</p>
           <ul>
             <li>admin / 1234</li>
