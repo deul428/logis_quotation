@@ -244,7 +244,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       });
       const result = await res.text();
       console.log("서버 응답:", result);
-      alert("✅ 견적 저장 요청 완료");
+      // alert("✅ 견적 저장 요청 완료");
     } catch (err) {
       console.error("전송 오류:", err);
       alert("❌ 서버 전송 실패");
@@ -291,7 +291,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       });
       const result = await res.text();
       console.log("서버 응답:", result);
-      alert("✅ 비고 저장 완료");
+      // alert("✅ 비고 저장 완료");
     } catch (err) {
       console.error("전송 오류:", err);
       alert("❌ 서버 전송 실패");
@@ -441,7 +441,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
             body: JSON.stringify(payload),
           });
           const text = await res.text();
-          alert("행 업데이트가 반영되었습니다.");
+          // alert("행 업데이트가 반영되었습니다.");
 
           // ⚠️ 백엔드(GAS) 반영 대기
           await new Promise((r) => setTimeout(r, 1200));
@@ -487,7 +487,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       alert("메일 발송 중 오류가 발생했습니다. " + e);
       console.error("메일 발송 오류:", e);
     } finally {
-      alert("📩 메일 발송이 완료되었습니다.");
+      alert("메일 발송이 완료되었습니다.");
       // 데이터 갱신
       setTimeout(() => {
         loadData();
@@ -579,7 +579,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
           </button>
         </div>
 
-        <div className="dataTable">
+        <div className="table">
           <div className="thead">
             <div className="tr th_tr">
               {enabledIndexes.map((i) => {
@@ -714,7 +714,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                     // ✅ 나머지 열은 기존대로 출력
                     return (
                       <div key={i} className={`td ${engKey}`}>
-                        {formatCell(value)}
+                        <div className="tdText">{formatCell(value)}</div>
                       </div>
                     );
                   })}
@@ -726,14 +726,21 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                     }}
                   >
                     <button
-                      className="warning"
+                      className={`danger ${
+                        row[header.indexOf("메일 발송 상태")]
+                          .toString()
+                          .replace(/ /g, "")
+                          .trim() === "발송완료"
+                          ? "sent"
+                          : "pending"
+                      }`}
                       style={
                         row[header.indexOf("메일 발송 상태")]
                           .toString()
                           .replace(/ /g, "")
                           .trim() === "발송완료"
-                          ? { background: "#f8b568ff", color: "#402200ff" }
-                          : { background: "#fd9823ff" }
+                          ? { background: "#211a1a" }
+                          : { background: "#d82222" }
                       }
                       onClick={(e) => {
                         e.stopPropagation();
@@ -872,7 +879,9 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
               </div>
             </div>
 
-            <button className='clear dark' onClick={() => clearFilter()}>초기화</button>
+            <button className="clear info" onClick={() => clearFilter()}>
+              초기화
+            </button>
 
             {/* <h3>표시할 열 선택</h3>
             {allColumns.map((col) => (

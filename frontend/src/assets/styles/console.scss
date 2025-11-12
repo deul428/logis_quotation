@@ -35,31 +35,28 @@
 
   #search_area {
     width: 100%;
-    height: fit-content;
+    height: 70px;
     margin-bottom: 1rem;
     display: grid;
     grid-template-columns: repeat(4, 1fr) 0.2fr;
     border-top: 1px solid #000;
     align-items: center;
     border-bottom: 1px solid #ddd;
-    h3 {
-      margin: 0;
-      margin-bottom: 0.5rem;
-      font-size: 1.2rem;
-    }
     .search_box {
+      height: 100%;
       display: flex;
       flex-direction: row;
       flex: 1 1 0;
       align-items: center;
       .th {
+        background: $table-th-bg;
+        font-size: 0.9rem;
         width: 20%;
+        height: 100%;
         display: flex;
         align-items: center;
-        background-color: transparent;
 
         label {
-          height: 100%;
           width: 100%;
           text-align: center;
         }
@@ -67,26 +64,23 @@
       .td {
         width: 80%;
         height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         input {
-          margin: 0.5rem 1rem;
-          width: calc(100% - 3.2rem);
+          width: calc(100% - 3rem);
+          margin: 0 1rem;
+          text-align: left;
           font-family: inherit;
         }
       }
-
-      /* input[type="checkbox"] {
-        box-shadow: none;
-        width: 1rem;
-        margin: 0 0.3rem 0 0;
-        accent-color: red;
-      } */
     }
     button.clear {
       margin: 0;
       width: 100%;
       height: fit-content;
       flex: 0.5 1 0;
-      padding: 0.7rem 1rem;
+      padding: 0.7rem 0;
     }
   }
   .table_wrapper {
@@ -116,7 +110,7 @@
   }
 }
 
-.dataTable {
+.table {
   width: 100%;
   display: table;
   flex-direction: column;
@@ -128,37 +122,54 @@
 
   .thead,
   .tbody {
-    .tr {
-      display: flex;
-      align-items: center;
-      flex: 1 1 auto;
-      cursor: pointer;
-      transition: all 0.3s linear;
-      height: fit-content;
+    &.thead {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+    }
 
-      &:hover {
-        background-color: #fafcff;
-      }
+    &.tbody {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .tr {
       .th,
       .td {
         font-size: 0.8rem;
         padding: 0 0.25rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: normal;
-        word-break: break-word;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        line-height: 1.4rem;
-        max-height: calc(1.4rem * 2);
-        height: 2.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         text-align: center;
+        height: 2.8rem;
         border-right: 1px solid #ddd;
-        // min-height: calc(48px - 1rem);
-
         flex: 1 1 0;
+
+        &.th {
+          color: $heading-color-3;
+          font-weight: 500;
+          display: flex;
+          line-height: 1.5;
+          justify-content: center !important;
+          align-items: center !important;
+          &:hover {
+            background: $table-th-bg;
+          }
+          svg {
+            font-size: 1rem;
+          }
+        }
+        .tdText {
+          display: -webkit-box;
+          -webkit-box-orient: vertical;
+          -webkit-line-clamp: 2;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          word-break: break-word;
+          line-height: 1.4rem;
+          max-height: calc(1.4rem * 2);
+        }
         button {
           font-size: 0.9rem;
           padding: 0;
@@ -203,27 +214,37 @@
           justify-content: center;
           flex: 1 1 0;
 
-          button.warning {
+          button {
             width: 100%;
             white-space: pre;
+            &.sent {
+              &:hover {
+                background-color: #211a1a !important;
+              }
+            }
           }
         }
       }
-      .th {
-        color: $heading-color-3;
+      &.th_tr {
+        background-color: $table-th-bg;
+        border-top: 1px solid $heading-color-2;
+        border-bottom: 1px solid $heading-color-4;
         font-weight: 500;
-        display: flex;
-        line-height: 1.5;
-        justify-content: center !important;
         align-items: center !important;
-        &:hover {
-          background: #fafafa;
-        }
-        svg {
-          font-size: 1rem;
-        }
       }
-      /* ✅ 열 비율 클래스 */
+      border: 1px solid #ddd;
+      border-right: none;
+      border-left: none;
+      display: flex;
+      align-items: center;
+      flex: 1 1 auto;
+      cursor: pointer;
+      transition: all 0.3s linear;
+      height: fit-content;
+
+      &:hover {
+        background-color: #fafcff;
+      }
       .flex-1 {
         flex: 1 1 0;
       }
@@ -233,28 +254,6 @@
       .flex-3 {
         flex: 3 1 0;
       }
-    }
-  }
-  .thead {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    .th_tr {
-      background-color: #fafafa;
-      border-top: 1px solid $heading-color-2;
-      border-bottom: 1px solid $heading-color-4;
-      font-weight: 500;
-      align-items: center !important;
-    }
-  }
-  .tbody {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    .tr {
-      border: 1px solid #ddd;
-      border-right: none;
-      border-left: none;
     }
   }
 }

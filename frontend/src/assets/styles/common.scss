@@ -102,6 +102,12 @@
         background: #555 !important;
       }
     }
+    &.danger {
+      background: #d82222;
+      &:hover {
+        background: #bb1818 !important;
+      }
+    }
   }
   input,
   textarea {

@@ -1,6 +1,70 @@
 @import "./mixin";
 @import "./variables";
 #user {
+  &.user_02 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    .cntnt_box {
+      &.user_02 {
+        height: 90%;
+        justify-content: flex-start !important;
+      }
+      #input_area {
+        .input_field {
+          button {
+            padding: 0.5rem;
+          }
+          .input_product_area {
+            .input_product_heading {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+              h4 {
+              }
+              button {
+                width: fit-content;
+                padding: 0.3rem 0.7rem;
+              }
+            }
+            .input_product_field {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 0.25rem;
+              @include mobile {
+                grid-template-columns: repeat(1, 1fr);
+              }
+              @include tablet {
+                grid-template-columns: repeat(2, 1fr);
+              }
+              div {
+                text-align: left;
+                label {
+                  text-align: left;
+                  font-size: 0.8rem;
+                }
+              }
+            }
+            margin-bottom: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: $common-border-radius;
+            transition: all 0.3s linear;
+            outline: none;
+            box-shadow: 0 2px 8px 0 rgba(0, 19, 73, 0.06);
+            font-size: 0.8rem;
+            padding: 1rem 0.6rem;
+            &:focus,
+            &:active {
+              border: 1px solid #5277e790;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+#user {
   width: map-get($cntnt-wrap-widths, desktop);
   @include tablet {
     width: map-get($cntnt-wrap-widths, tablet);
@@ -30,7 +94,6 @@
         margin: 0 0 0.2rem;
         font-size: 1.5rem;
       }
-
     }
 
     #input_area {
@@ -46,6 +109,10 @@
           margin-bottom: 0.5rem;
           width: calc(100% - 1rem - 8px);
         }
+      }
+      label {
+      }
+      .input_field {
       }
     }
     #result_area {
@@ -152,12 +219,13 @@
       width: calc(100% - 1rem) !important;
       padding: 1rem 0.5rem !important;
       justify-content: flex-start !important;
+      &.user_02 {
+      }
       .user_header {
         width: 60%;
         h2 {
           font-size: 1.2rem;
         }
-
       }
 
       #input_area {
@@ -197,7 +265,7 @@
             margin-bottom: 0.5rem;
           }
           .desc_box {
-            font-size: 0.8rem; 
+            font-size: 0.8rem;
             margin: 0 0 1rem;
             width: calc(100% - 2rem);
             &.open {

@@ -10,9 +10,22 @@ const User02 = () => {
 
   const [inputCompany, setInputCompany] = useState<string>(``);
   const [inputRegion, setInputRegion] = useState<string>(``);
-  const [inputProduct, setInputProduct] = useState<string>(``);
   const [inputNote, setInputNote] = useState<string>(``);
   const [content, setContent] = useState<string>("");
+
+  // 상품 정보 타입 정의
+  interface Product {
+    id: number;
+    productName: string;
+    spec: string;
+    usage: string;
+    amount: string;
+    print: string;
+  }
+
+  const [products, setProducts] = useState<Product[]>([
+    { id: 1, productName: "", spec: "", usage: "", amount: "", print: "" },
+  ]);
 
   // 폼 제출
   const handleSubmit = async (e: any) => {
@@ -48,15 +61,52 @@ const User02 = () => {
     }
   };
 
+  // 상품 추가
+  const addProduct = () => {
+    const newId =
+      products.length > 0 ? Math.max(...products.map((p) => p.id)) + 1 : 1;
+    setProducts([
+      ...products,
+      {
+        id: newId,
+        productName: "",
+        spec: "",
+        usage: "",
+        amount: "",
+        print: "",
+      },
+    ]);
+  };
+
+  // 상품 삭제
+  const removeProduct = (id: number) => {
+    if (products.length > 1) {
+      setProducts(products.filter((p) => p.id !== id));
+    }
+  };
+
+  // 상품 필드 업데이트
+  const updateProduct = (id: number, field: keyof Product, value: string) => {
+    setProducts(
+      products.map((p) => (p.id === id ? { ...p, [field]: value } : p))
+    );
+  };
+
   const resetForm = () => {
     setSalesRep("");
+    setInputCompany("");
+    setInputRegion("");
+    setInputNote("");
     setContent("");
+    setProducts([
+      { id: 1, productName: "", spec: "", usage: "", amount: "", print: "" },
+    ]);
     setIsSubmitted(false);
   };
 
   return (
-    <div id="user">
-      <div className="cntnt_box">
+    <div id="user" className="user_02">
+      <div className="cntnt_box user_02">
         <div className="user_header">
           <h2>로지스 유통 견적 문의</h2>
           <img className="ci" src={ci} alt="AJ 로고" />
@@ -67,7 +117,7 @@ const User02 = () => {
           <div id="input_area">
             <form id="customForm" onSubmit={handleSubmit}>
               <div className="input_field">
-                <label>영업 담당자 성함</label>
+                <label>영업 담당자명</label>
                 <input
                   type="text"
                   name="entry."
@@ -82,7 +132,7 @@ const User02 = () => {
                   type="text"
                   name="entry."
                   placeholder="ex) AJ네트웍스"
-                  value={salesRep}
+                  value={inputCompany}
                   onChange={(e: any) => setInputCompany(e.target.value)}
                 />
               </div>
@@ -92,22 +142,92 @@ const User02 = () => {
                   type="text"
                   name="entry."
                   placeholder="ex) 서울특별시 송파구 정의로8길 9"
-                  value={salesRep}
+                  value={inputRegion}
                   onChange={(e: any) => setInputRegion(e.target.value)}
                 />
               </div>
               <div className="input_field">
                 <label>상품</label>
-                <textarea
-                  name="entry."
-                  rows={6}
-                  placeholder="**양식을 엄격하게 지켜 주시기 바랍니다. 자세한 건 아래 가이드 문서를 참고해 주세요.** 
-ex)
-1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장 
-2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원"
-                  value={salesRep}
-                  onChange={(e: any) => setInputProduct(e.target.value)}
-                />
+                {products.map((product, index) => (
+                  <div key={product.id} className="input_product_area">
+                    <div className="input_product_heading">
+                      <h4>상품 {index + 1}</h4>
+                      {products.length > 1 && (
+                        <button
+                          type="button"
+                          className="danger"
+                          onClick={() => removeProduct(product.id)}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
+                    <div className="input_product_field">
+                      <div>
+                        <label>상품명</label>
+                        <input
+                          type="text"
+                          placeholder="ex) 박스"
+                          value={product.productName}
+                          onChange={(e) =>
+                            updateProduct(
+                              product.id,
+                              "productName",
+                              e.target.value
+                            )
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label>규격</label>
+                        <input
+                          type="text"
+                          placeholder="ex) W450*H460*0.06MM"
+                          value={product.spec}
+                          onChange={(e) =>
+                            updateProduct(product.id, "spec", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label>사용량</label>
+                        <input
+                          type="text"
+                          placeholder="ex) 약 40,000장"
+                          value={product.usage}
+                          onChange={(e) =>
+                            updateProduct(product.id, "usage", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label>사용 금액</label>
+                        <input
+                          type="text"
+                          placeholder="ex) 500,000원"
+                          value={product.amount}
+                          onChange={(e) =>
+                            updateProduct(product.id, "amount", e.target.value)
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label>인쇄</label>
+                        <input
+                          type="text"
+                          placeholder="ex) O 또는 X"
+                          value={product.print}
+                          onChange={(e) =>
+                            updateProduct(product.id, "print", e.target.value)
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button type="button" className="warning" onClick={addProduct}>
+                  + 상품 추가
+                </button>
               </div>
               <div className="input_field">
                 <label> 요청사항</label>
@@ -115,8 +235,8 @@ ex)
                   name="entry."
                   rows={2}
                   placeholder="ex) 납기 일정 회신 부탁드립니다."
-                  value={salesRep}
-                  onChange={(e: any) => setSalesRep(e.target.value)}
+                  value={inputNote}
+                  onChange={(e: any) => setInputNote(e.target.value)}
                 />
               </div>
               <button type="submit">문의 요청</button>

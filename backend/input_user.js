@@ -576,7 +576,7 @@ function parseKakaoText(text) {
     "색상,도수": "",
     공급사: "",
     견적요청비고: "",
-    기타요청: "", 
+    기타요청: "",
   };
 
   const lines = text.split("\n");
@@ -876,55 +876,68 @@ function insertToFinalSheet(
 }
 // 신규 함수: 이메일 발송
 function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
-  /*   manager = { name: '김희수', email: 'kimhs@ajnet.co.kr' }
-  salesManager = "김희수"
-  parsedData = {}
-  estimateNum = 9999 */
+  if (!manager && !salesManager && !parsedData && !estimateNum) { 
+    manager = { name: '김희수', email: 'kimhs@ajnet.co.kr' }
+    salesManager = "김희수"
+    parsedData = {}
+    estimateNum = 9999 
+  }
   try {
-    const subject = `신규 견적 요청 (#${estimateNum}) - ${
-      parsedData["업체명"] || "미기입"
-    }`;
+    const subject = `신규 견적 요청 (#${estimateNum}) - ${parsedData["업체명"] || "미기입"
+      }`;
 
     const bodyText = ``;
 
     const htmlBody = `
 <html>
-  <body style="font-family:'Noto Sans KR', Pretendard, sans-serif; color:#333;">
-    <p style="font-size:12px; color:#777;">본 메일은 시스템에서 자동 발송되었습니다.</p> 
-    <h2 style="color:#EF3340;">신규 견적 요청 안내</h2> <p>안녕하세요, <strong>${
-      manager.name
-    }</strong>님.
-    <p>새로운 견적 요청이 접수되었습니다.</p>
-<table style="border-collapse:collapse; margin-top:12px; width:100%; font-size:14px;">
-         <tr><td><b>영업 담당자</b></td><td>${salesManager}</td></tr>
-         <tr><td><b>업체명</b></td><td>${parsedData["업체명"] || "-"}</td></tr>
-         <tr><td><b>상품</b></td><td>${parsedData["상품"] || "-"}</td></tr>
-         <tr><td><b>규격</b></td><td>${
-           parsedData["규격(스팩)"] || "-"
-         }</td></tr>
-         <tr><td><b>사용금액(월평균)</b></td><td>${
-           parsedData["사용금액(월평균)"] || "-"
-         }</td></tr>
-         <tr><td><b>요청일</b></td><td>${new Date().toLocaleString(
-           "ko-KR"
-         )}</td></tr>
-       </table>
+  <body
+    style="font-family: 'Noto Sans KR', Pretendard, sans-serif; color: #333"
+  >
+    <p style="font-size: 12px; color: #777">
+      본 메일은 시스템에서 자동 발송되었습니다.
+    </p>
+    <h2 style="color: #ef3340">신규 견적 요청 안내</h2>
+    <p>안녕하세요, <sdivong>${manager.name}</sdivong>님.</p>
 
-    <p>자세한 내용은 로지스 견적 요청 시스템에서 확인해 주시기 바랍니다.</p> 
+    <p>새로운 견적 요청이 접수되었습니다.</p>
+    <div
+      style="
+        border-collapse: collapse;
+        margin-top: 12px;
+        width: 100%;
+        font-size: 14px;
+      "
+    >
+      <div style="margin-bottom: 12px; display: flex">
+        <div style="width: 150px"><b>영업 담당자</b></div>
+        <div style="width: 80%">${salesManager}</div>
+      </div>
+      <div style="margin-bottom: 12px; display: flex">
+        <div style="width: 150px"><b>업체명</b></div>
+        <div style="width: 80%">${parsedData["업체명"] || "-"}</div>
+      </div>
+      <div style="margin-bottom: 12px; display: flex">
+        <div style="width: 150px"><b>상품</b></div>
+        <div style="width: 80%">${parsedData["상품"] || "-"}</div>
+      </div>
+      <div style="margin-bottom: 12px; display: flex">
+        <div style="width: 150px"><b>규격</b></div>
+        <div style="width: 80%">${parsedData["규격(스팩)"] || "-"}</div>
+      </div>
+      <div style="margin-bottom: 12px; display: flex">
+        <div style="width: 150px"><b>사용금액(월평균)</b></div>
+        <div style="width: 80%">${parsedData["사용금액(월평균)"] || "-"}</div>
+      </div>
+      <div style="margin-bottom: 12px; display: flex">
+        <div style="width: 150px"><b>요청일</b></div>
+        <div style="width: 80%">${new Date().toLocaleString("ko-KR")}</div>
+      </div>
+    </div>
+
+    <p>자세한 내용은 로지스 견적 요청 시스템에서 확인해 주시기 바랍니다.</p>
   </body>
-</html>`;
-    /*    
-       <p>안녕하세요, <strong>${manager.name}</strong>님.</p>
-       
-       
-       <table style="border-collapse:collapse; margin-top:12px; width:100%; font-size:14px;">
-         <tr><td><b>영업 담당자</b></td><td>${salesManager}</td></tr>
-         <tr><td><b>업체명</b></td><td>${parsedData["업체명"] || "-"}</td></tr>
-         <tr><td><b>상품</b></td><td>${parsedData["상품"] || "-"}</td></tr>
-         <tr><td><b>규격</b></td><td>${parsedData["규격(스팩)"] || "-"}</td></tr>
-         <tr><td><b>사용금액(월평균)</b></td><td>${parsedData["사용금액(월평균)"] || "-"}</td></tr>
-         <tr><td><b>요청일</b></td><td>${new Date().toLocaleString("ko-KR")}</td></tr>
-       </table> */
+</html>
+`; 
     GmailApp.sendEmail(manager.email, subject, bodyText, { htmlBody });
     Logger.log(`메일 전송 완료 → ${manager.email}`);
   } catch (error) {

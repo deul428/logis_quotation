@@ -30,7 +30,7 @@ const ConsoleDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
 
           <div className="modal-body">
             {row && Object.keys(row).length > 0 ? (
-              <div className="dataTable detailTable">
+              <div className="table detailTable">
                 <div className="tbody">
                   {Object.entries(row).map(([key, value]) => {
                     let displayValue = value || " ";
