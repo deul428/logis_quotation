@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import ci from "./assets/img/logo.svg";
 import "./assets/styles/user.scss";
 const User = () => {
-  const [salesRep, setSalesRep] = useState<string>(""); // 영업담당자
+  const [salesManagerName, setSalesManagerName] = useState<string>(""); // 영업담당자 이름
+  const [salesManagerNum, setSalesManagerNum] = useState<string>(""); // 영업담당자 사번
   const fieldMsg: string = `업체명: 
   
 지역: 
@@ -21,10 +22,10 @@ const User = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (!salesRep.trim()) {
+/*     if (!salesManagerName.trim()) {
       alert("영업 담당자를 입력해 주세요.");
       return;
-    }
+    } */
     if (!content.trim()) {
       alert("문의 내용을 입력해 주세요.");
       return;
@@ -32,7 +33,8 @@ const User = () => {
 
     try {
       const formData = new FormData();
-      formData.append("entry.586019235", salesRep);
+      formData.append("entry.586019235", salesManagerName);
+      formData.append("entry.1839132968", salesManagerNum);
       formData.append("entry.1271596132", content);
 
       await fetch(
@@ -52,7 +54,7 @@ const User = () => {
   };
 
   const resetForm = () => {
-    setSalesRep("");
+    setSalesManagerName("");
     setContent(fieldMsg);
     setIsSubmitted(false);
   };
@@ -69,12 +71,19 @@ const User = () => {
         {!isSubmitted && (
           <div id="input_area">
             <form id="customForm" onSubmit={handleSubmit}>
+             {/*  <input
+                type="number"
+                name="entry.1839132968"
+                placeholder="영업 담당자 사번"
+                value={salesManagerNum}
+                onChange={(e: any) => setSalesManagerNum(e.target.value)}
+              /> */}
               <input
                 type="text"
                 name="entry.586019235"
                 placeholder="영업 담당자 성함"
-                value={salesRep}
-                onChange={(e: any) => setSalesRep(e.target.value)}
+                value={salesManagerName}
+                onChange={(e: any) => setSalesManagerName(e.target.value)}
               />
               <textarea
                 name="entry.1271596132"
@@ -102,7 +111,7 @@ const User = () => {
             <div id="submittedData" className="card">
               <div className="rows row_01">
                 <h3>영업담당자</h3>
-                <p>{salesRep || "미입력"}</p>
+                <p>{salesManagerNum|| salesManagerName}</p>
               </div>
               <div className="rows row_02">
                 <h3>견적 문의 내용</h3>

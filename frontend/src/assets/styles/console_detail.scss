@@ -30,38 +30,47 @@
     }
     .modal-body {
       .detailTable {
+        margin-bottom: 1rem;
         .tbody {
-          .tr {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          .field {
+            display: flex;
+            box-shadow: none;
+            padding: 0;
+            border: none;
+            border-bottom: 1px solid #ddd;
+            &:last-child{
+              border-bottom: none;
+            }
+            &.full {
+              display: flex;
+              width: 100%;
+              margin-top: 1rem;
+              box-shadow: none;
+              padding: 0;
+            }
             .th,
             .td {
+              box-shadow: none;
               font-size: 0.9rem;
               margin: 0;
               display: flex;
               justify-content: left;
               align-items: center;
-              padding: 0;
-              white-space: pre;
-              height: auto;
-              max-height: unset;
-              text-overflow: unset;
-              word-break: inherit;
-              line-clamp: unset;
-              line-height: auto;
-              height: 100%;
-              padding: 0.3rem 0.5rem;
-            }
-            .th { 
-              flex: 1 1 0;
-              align-items: stretch;
-              border: none; 
-            }
-            .td {
-              background-color: white;
-              text-align: left;
-              flex: 4 1 0;
-              cursor: default;
-              &:hover {
-                background-color: inherit;
+              padding: 0.5rem;
+              &.th {
+                border: none;
+                background-color: $table-th-bg;
+                width: 30%;
+              }
+              &.td {
+                width: 70%;
+                background-color: white;
+                text-align: left;
+                &:hover {
+                  background-color: inherit;
+                }
               }
             }
           }

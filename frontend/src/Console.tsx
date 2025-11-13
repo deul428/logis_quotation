@@ -242,17 +242,20 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const result = await res.text();
-      console.log("서버 응답:", result);
-      // alert("✅ 견적 저장 요청 완료");
+      const result = await res.json();
+      if (result.status === "fail") {
+        throw new Error(
+          result.message || "금액 저장에 실패하였습니다. 관리자에게 문의하세요."
+        );
+      }
+      setLoading(false);
     } catch (err) {
       console.error("전송 오류:", err);
       alert("❌ 서버 전송 실패");
     } finally {
-      setLoading(false);
       setTimeout(() => {
         loadData();
-      }, 3000);
+      }, 5000);
     }
   };
   const sendMemo = async (
@@ -289,17 +292,20 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const result = await res.text();
-      console.log("서버 응답:", result);
-      // alert("✅ 비고 저장 완료");
+      const result = await res.json();
+      if (result.status === "fail") {
+        throw new Error(
+          result.message || "비고 저장에 실패하였습니다. 관리자에게 문의하세요."
+        );
+      }
+      setLoading(false);
     } catch (err) {
       console.error("전송 오류:", err);
       alert("❌ 서버 전송 실패");
     } finally {
-      setLoading(false);
       setTimeout(() => {
         loadData();
-      }, 3000);
+      }, 5000);
     }
   };
   // ✅ 한글 key 정규화 함수 (공백/괄호/개행 등 제거)
@@ -343,13 +349,15 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     ["견적금액", "quoteAmount"],
     ["견적담당자비고", "quoteMemo"],
     ["메일발송상태", "mailStatus"],
+    ["견적담당자메일", "managerEmail"],
+    ["영업담당자메일", "salesManagerEmail"],
   ].forEach(([kor, eng]) => {
     keyMap[normalizeKey(kor)] = eng;
   });
-
+  /* 
   useEffect(() => {
     console.log(editedMemo, editedAmounts);
-  }, [editedMemo, editedAmounts]);
+  }, [editedMemo, editedAmounts]); */
   // 영업 담당자 이메일 발송 (견적 금액 자동 반영 포함)
   const sendEmailToSalesManager = async (
     rowObj: Record<string, any>,
@@ -409,6 +417,12 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       }
     }
  */
+    if (row.manager === "미지정" || !row.manager) {
+      alert(
+        "견적 담당자가 미지정 상태입니다. 견적 담당자를 먼저 지정해 주세요."
+      );
+      return;
+    }
     if (
       (newAmount && newAmount !== amount.toString()) ||
       (newMemo && newMemo !== memo)
@@ -440,10 +454,13 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
           });
-          const text = await res.text();
-          // alert("행 업데이트가 반영되었습니다.");
-
-          // ⚠️ 백엔드(GAS) 반영 대기
+          const result = await res.json();
+          if (result.status === "fail") {
+            throw new Error(
+              result.message ||
+                "비고 저장에 실패하였습니다. 관리자에게 문의하세요."
+            );
+          }
           await new Promise((r) => setTimeout(r, 1200));
         } catch (err) {
           console.error("행 업데이트 중 오류:", err);
@@ -462,9 +479,24 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     }
 
     try {
-      if (Number(newAmount) !== Number(row.quoteAmount)) {
-        row.quoteAmount = Number(newAmount);
+      console.log("변경 전:", row.quoteAmount, newAmount);
+
+      const cleanNewAmount = String(newAmount)
+        .replace(/[^\d.-]/g, "")
+        .trim();
+      const cleanOldAmount = String(row.quoteAmount)
+        .replace(/[^\d.-]/g, "")
+        .trim();
+
+      if (
+        cleanNewAmount &&
+        cleanOldAmount &&
+        Number(cleanNewAmount) !== Number(cleanOldAmount)
+      ) {
+        row.quoteAmount = Number(cleanNewAmount);
       }
+
+      console.log("변경 후:", row.quoteAmount);
       if (row.quoteMemo !== newMemo) {
         row.quoteMemo = newMemo;
       }
@@ -474,24 +506,26 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
         action: "sendToSalesManager",
         row,
       };
-
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      const result = await res.text();
+      const result = await res.json();
       console.log("메일 발송 응답:", result);
-    } catch (e) {
-      alert("메일 발송 중 오류가 발생했습니다. " + e);
-      console.error("메일 발송 오류:", e);
-    } finally {
+      if (result.status === "fail") {
+        throw new Error(
+          result.message || "메일 발송에 실패하였습니다. 관리자에게 문의하세요."
+        );
+      }
       alert("메일 발송이 완료되었습니다.");
-      // 데이터 갱신
       setTimeout(() => {
         loadData();
       }, 1200);
+    } catch (e) {
+      alert("메일 발송 중 오류가 발생했습니다.\n" + e);
+      console.error("메일 발송 오류:", e);
     }
   };
 
@@ -690,7 +724,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                           <input
                             type="number"
                             placeholder={viewValue}
-                            defaultValue={amountValue}
+                            value={amountValue}
                             onChange={(e) =>
                               setEditedAmounts((prev) => ({
                                 ...prev,

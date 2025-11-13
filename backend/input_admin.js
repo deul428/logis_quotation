@@ -558,40 +558,40 @@ function validateManagerUpdate(data) {
 function sendEmailToSalesManager(data) {
   if (!data) {
     data = {
-      row:
-      {
-        "estimateNum": 96,
-        "status": "접수",
-        "department": "",
-        "salesManager": "김희수",
-        "manager": "임민규",
-        "requestDate": "2025-11-12T02:02:50.049Z",
-        "replyDate": "",
-        "validUntil": "",
-        "company": "AJ 네트웍스",
-        "category": "",
-        "product": "테이프",
-        "spec": "W500*H600",
-        "salesInfo": "",
-        "견적요청비고": "",
-        "extraInfo": "",
-        "sampleRequired": "",
-        "printing": "안함",
+      row: {
+        estimateNum: 96,
+        status: "접수",
+        department: "",
+        salesManager: "김희수",
+        manager: "임민규",
+        requestDate: "2025-11-12T02:02:50.049Z",
+        replyDate: "",
+        validUntil: "",
+        company: "AJ 네트웍스",
+        category: "",
+        product: "테이프",
+        spec: "W500*H600",
+        salesInfo: "",
+        견적요청비고: "",
+        extraInfo: "",
+        sampleRequired: "",
+        printing: "안함",
         "색상,도수": "",
-        "moq": "",
-        "monthlyUsage": "약 20,000롤",
-        "monthlyAmount": 500000,
-        "region": "서울 송파구",
-        "requestNote": "납기 일정 회신 부탁드립니다.\"",
-        "purchasePrice": "",
-        "proposedSpec": "",
-        "supplier": "",
-        "orderStatus": "",
-        "rawText": " \"업체명: AJ 네트웍스\n지역: 서울 송파구\n1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장\n2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원 / 인쇄: 안함\n요청사항: 납기 일정 회신 부탁드립니다.\"",
-        "quoteAmount": 99999,
-        "mailStatus": "발송 전"
-      }
-    }
+        moq: "",
+        monthlyUsage: "약 20,000롤",
+        monthlyAmount: 500000,
+        region: "서울 송파구",
+        requestNote: '납기 일정 회신 부탁드립니다."',
+        purchasePrice: "",
+        proposedSpec: "",
+        supplier: "",
+        orderStatus: "",
+        rawText:
+          ' "업체명: AJ 네트웍스\n지역: 서울 송파구\n1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장\n2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원 / 인쇄: 안함\n요청사항: 납기 일정 회신 부탁드립니다."',
+        quoteAmount: 99999,
+        mailStatus: "발송 전",
+      },
+    };
   }
   if (data?.row.requestDate) {
     const isoString = data.row.requestDate;
@@ -620,63 +620,68 @@ function sendEmailToSalesManager(data) {
   }
   try {
     // ✅ 메일 내용 구성
+    if (!data.row.salesManagerEmail) {
+      return jsonResponse({
+        status: "fail",
+        message: `영업 담당자 정보가 없습니다.`,
+      });
+    }
     const subject = `신규 견적 요청 접수 확인 (#${data.row.estimateNum})`;
     const bodyText = "";
 
-    const quoteAmountFormatted = data.row.quoteAmount ? data.row.quoteAmount
-      .toString()
-      .replace(/\B(?=(\d{3})+(?!\d))/g, ",") : null;
+    const quoteAmountFormatted = data.row.quoteAmount
+      ? data.row.quoteAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+      : null;
     const htmlBody = `
      <html>
-      <body
-        style="font-family: 'Noto Sans KR', Pretendard, sans-serif; color: #333"
-      >
-        <p style="font-size: 12px; color: #777">
-          본 메일은 시스템에서 자동 발송되었습니다.
-        </p>
-        <h2 style="color: #ef3340">신규 견적 요청 확인 안내</h2>
-        <p>안녕하세요, <strong>${data.row.salesManager || ""}</strong>님.</p>
-        <p>요청하신 ${data.row.estimateNum}번 견적 요청이 접수되었습니다.</p>
+  <body
+    style="font-family: 'Noto Sans KR', Pretendard, sans-serif; color: #333"
+  >
+    <p style="font-size: 12px; color: #777">
+      본 메일은 시스템에서 자동 발송되었습니다.
+    </p>
+    <h2 style="color: #ef3340">신규 견적 요청 확인 안내</h2>
+    <p>안녕하세요, <strong>${data.row.salesManager || ""}</strong>님.</p>
+    <p>요청하신 ${data.row.estimateNum}번 견적 요청이 접수되었습니다.</p>
 
+    <div
+      style="margin-top: 12px; width: 100%; font-size: 14px; overflow: hidden"
+    >
+      <h3 style="font-weight: bold; margin: 0">견적 요청 본문</h3>
+      <div style="margin-bottom: 12px; display: flex; flex-direction: column">
         <div
-          style="margin-top: 12px; width: 100%; font-size: 14px; overflow: hidden"
-        > 
-          <div style="margin-bottom: 12px; display: flex">
-            <h3 style="font-weight: bold">견적 요청 본문</h3>
-          </div>
-          <div
-            style="white-space: pre-wrap; overflow: visible; text-overflow: unset"
-          >
-            ${data.row.rawText || ""}
-          </div>
-          <div style="margin-bottom: 12px">
-            <h3 style="font-weight: bold">견적 담당자</h3>
-            <div style="">${data.row.manager || ""}</div>
-          </div>
-
-          <div style="margin-bottom: 12px">
-            <h3 style="font-weight: bold">견적 요청일</h3>
-            <div style="">${data.row.requestDate || ""}</div>
-          </div>
-
-          <div style="margin-bottom: 12px">
-            <h3 style="font-weight: bold">견적담당자 비고</div>
-            <div style="">${data.row.quoteMemo || ""}</div>
-          </div>
-
-          <div style="">
-            <h3 style="font-weight: bold">견적 금액</h3>
-            <div style="">
-              ${quoteAmountFormatted + '원' || ""}
-            </div>
-          </div>
+          style="white-space: pre-wrap; overflow: visible; text-overflow: unset"
+        >
+          ${data.row.rawText || ""}
         </div>
+      </div>
+      <div style="margin-bottom: 12px">
+        <h3 style="font-weight: bold; margin: 0">견적 담당자</h3>
+        <div style="">${data.row.manager || ""}</div>
+      </div>
 
-        <p style="margin-top: 12px">기타 사항은 견적 담당자에게 문의해 주십시오.</p>
-      </body>
-    </html> `;
+      <div style="margin-bottom: 12px">
+        <h3 style="font-weight: bold; margin: 0">견적 요청일</h3>
+        <div style="">${data.row.requestDate || ""}</div>
+      </div>
 
-    Logger.log(`이메일 발송 준비 ${htmlBody}`); 
+      <div style="margin-bottom: 12px">
+        <h3 style="font-weight: bold; margin: 0">견적담당자 비고</h3>
+        <div style="">${data.row.quoteMemo || ""}</div>
+      </div>
+
+      <div style="">
+        <h3 style="font-weight: bold; margin: 0">견적 금액</h3>
+        <div style="">${quoteAmountFormatted + "원" || ""}</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 16px">기타 사항은 견적 담당자에게 문의해 주십시오.</p>
+  </body>
+</html>
+`;
+
+    Logger.log(`이메일 발송 준비 ${htmlBody}`);
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName("파싱결과"); // ⚠️ 시트명 확인 필요
 
@@ -698,15 +703,14 @@ function sendEmailToSalesManager(data) {
 
     const recipient = data.row.salesManagerEmail || "kimhs@ajnet.co.kr";
     GmailApp.sendEmail(recipient, subject, bodyText, { htmlBody });
-    Logger.log(`메일 전송 완료 → ${manager.email}`);
     // ✅ 행 탐색 및 상태 업데이트
     for (let i = 1; i < sheetData.length; i++) {
       const rowEstimate = String(sheetData[i][estimateNumCol]).trim();
       if (rowEstimate === String(data.row.estimateNum).trim()) {
         sheet.getRange(i + 1, mailSttsCol + 1).setValue("발송 완료");
-        // sheet.getRange(i + 1, amountCol).setValue(amount);
         Logger.log(
-          `견적번호 ${data.row.estimateNum} 행(${i + 1
+          `견적번호 ${data.row.estimateNum} 행(${
+            i + 1
           })에 메일 상태 업데이트 완료, ${recipient}`
         );
         return jsonResponse({
@@ -714,7 +718,6 @@ function sendEmailToSalesManager(data) {
           message: "메일 전송 및 상태 업데이트 완료",
           estimateNum: data.row.estimateNum,
           recipient: recipient,
-          // amount: amount || "",
         });
       }
     }

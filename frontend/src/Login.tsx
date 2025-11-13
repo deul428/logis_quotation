@@ -13,9 +13,10 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
 
   const VALID_USERS = [
-    { id: "admin", pw: "1234", name: "관리자" },
-    { id: "manager", pw: "abcd", name: "매니저" },
-    { id: "guest", pw: "guest", name: "게스트" },
+    { id: "admin", pw: "1234", name: "admin" },
+    { id: "manager", pw: "abcd", name: "manager" },
+    { id: "guest", pw: "guest", name: "guest" },
+    { id: "gksektha12", pw: "218738", name: "testuser" },
   ];
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
