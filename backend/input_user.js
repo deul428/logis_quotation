@@ -849,7 +849,7 @@ function insertToFinalSheet(
         "원본데이터",
         "견적 금액",
         "견적담당자 비고",
-        "메일 발송 상태",
+        // "메일 발송 상태",
       ];
       finalSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
     }
