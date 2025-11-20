@@ -166,7 +166,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   // 정렬
   const handleSort = (colName: string) => {
     if (!data || data.length <= 1) return;
-    console.log("colName", colName);
 
     const header = data[0];
     const body = data.slice(1);
@@ -214,7 +213,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     pastAmount: string,
     newAmount: string
   ) => {
-    console.log(estimateNum, pastAmount, newAmount);
     if (!newAmount.toString().trim()) {
       alert("금액을 입력하세요.");
       return;
@@ -264,7 +262,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     pastMemo: string,
     newMemo: string
   ) => {
-    console.log(estimateNum, pastMemo, newMemo);
     if (!newMemo.toString().trim()) {
       alert("비고를 입력하세요.");
       return;
@@ -355,10 +352,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   ].forEach(([kor, eng]) => {
     keyMap[normalizeKey(kor)] = eng;
   });
-  /* 
-  useEffect(() => {
-    console.log(editedMemo, editedAmounts);
-  }, [editedMemo, editedAmounts]); */
+
   // 영업 담당자 이메일 발송 (견적 금액 자동 반영 포함)
   const sendEmailToSalesManager = async (
     rowObj: Record<string, any>,
@@ -384,40 +378,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     const newMemo = editedMemo[estimateNum]; // 사용자가 수정한 input 값
     const memo = row.quoteMemo || "";
 
-    // 1️⃣ 견적 금액 자동 반영 로직
-    /*     if (inputValue && inputValue !== amount) {
-      const confirmUpdate = window.confirm(
-        `견적 금액을 저장한 후 메일을 발송할까요?`
-      );
-      if (confirmUpdate) {
-        try {
-          const payload = {
-            mode: "console",
-            action: "updateEstimate",
-            estimateNum,
-            newAmount: inputValue,
-          };
-
-          // 금액 업데이트 먼저 수행
-          const res = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-          const text = await res.text();
-          console.log("견적 금액 업데이트 응답:", text);
-          alert("견적 금액이 먼저 저장되었습니다.");
-
-          // ⚠️ 백엔드(GAS) 반영 대기
-          await new Promise((r) => setTimeout(r, 1200));
-        } catch (err) {
-          console.error("견적 금액 저장 중 오류:", err);
-          alert("견적 금액 저장 중 오류가 발생했습니다.");
-          return;
-        }
-      }
-    }
- */
     if (row.manager === "미지정" || !row.manager) {
       alert(
         "견적 담당자가 미지정 상태입니다. 견적 담당자를 먼저 지정해 주세요."
@@ -483,8 +443,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     }
 
     try {
-      console.log("변경 전:", row.quoteAmount, newAmount);
-
       const cleanNewAmount = String(newAmount)
         .replace(/[^\d.-]/g, "")
         .trim();
@@ -499,8 +457,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       ) {
         row.quoteAmount = Number(cleanNewAmount);
       }
-
-      console.log("변경 후:", row.quoteAmount);
       if (row.quoteMemo !== newMemo) {
         row.quoteMemo = newMemo;
       }
@@ -586,7 +542,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       // 요청일 필터
       if (searchReqDate.trim() !== "") {
         const cellValue = row[reqDateColIndex];
-        console.log(searchReqDate);
         if (!cellValue) return false;
         if (
           !String(cellValue).toLowerCase().includes(searchReqDate.toLowerCase())
@@ -596,7 +551,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       }
       if (searchStts.trim() !== "") {
         const cellValue = row[reqDateColIndex];
-        console.log(searchStts);
         if (!cellValue) return false;
         if (
           !String(cellValue).toLowerCase().includes(searchStts.toLowerCase())
@@ -837,7 +791,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     setSearchStts("");
   };
   const searchFilter = (key: any, value: string) => {
-    console.log(key, value);
     if (key === "manager") {
       setSearchManager(value);
     } else if (key === "salesManager") {
