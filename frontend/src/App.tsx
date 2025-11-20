@@ -1,8 +1,8 @@
-import User from "./User.tsx";
-import User02 from "./User02.tsx";
-import Console from "./Console.tsx";
-import Header from "./Header.tsx";
-import Login from "./Login.tsx";
+import User from "./User";
+import User02 from "./User02";
+import Console from "./Console";
+import Header from "./Header";
+import Login from "./Login";
 import "./assets/styles/common.scss";
 import "./assets/styles/console.scss";
 import "./assets/styles/login.scss";

@@ -103,6 +103,8 @@ function onFormResponseEdit(e) {
   }
 }
 
+// 하드코딩, 처리상태 열 인덱스
+const statusIndex = 4;
 // 구글 폼 응답 처리 함수
 function processFormResponse(sheet, row) {
   try {
@@ -131,38 +133,41 @@ function processFormResponse(sheet, row) {
     const timestamp = timestampIdx > -1 ? rowData[timestampIdx] : "";
     const rawText = rawTextIdx > -1 ? rowData[rawTextIdx] : "";
     const salesManagerName =
-      salesManagerNameIdx > -1 ? rowData[salesManagerNameIdx] : ""; 
+      salesManagerNameIdx > -1 ? rowData[salesManagerNameIdx] : "김희수"; 
     const salesManagerNum =
-      salesManagerNumIdx > -1 ? rowData[salesManagerNumIdx] : ""; 
+      salesManagerNumIdx > -1 ? rowData[salesManagerNumIdx] : "김희수"; 
     const status = statusIdx > -1 ? rowData[statusIdx] : "";
 
-    console.log("영업담당자사번:", salesManagerNum);
+    console.log("응답 데이터:", rowData);
+
+    // 타임스탬프는 A열, 원본텍스트는 B열로 가정
+    // const timestamp = rowData[0];
+    // const rawText = rowData[1];
+    // // 영업담당자는 구글 폼에서 별도로 설정하거나 기본값 사용
+    // const salesManager = rowData[2] || "임민규"; // 구글 폼에서 영업담당자 정보를 가져오거나 기본값 사용
 
     // 원본텍스트가 있는 경우만 처리
     console.log("데이터 파싱 시작");
 
-    // 처리상태 컬럼이 있다면 업데이트 (동적 인덱스 사용)
-    if (statusIdx > -1) {
-      sheet.getRange(row, statusIdx + 1).setValue("처리중");
+    // 처리상태 컬럼이 있다면 업데이트 (C열로 가정)
+    if (status) {
+      sheet.getRange(row, statusIndex + 1).setValue("처리중");
     }
+    // if (lastColumn >= 4) {
+    //   sheet.getRange(row, statusIndex).setValue("처리중");
+    // }
 
-    // 파싱 및 처리 (영업담당자사번 전달)
-    processRawData(rawText, timestamp, salesManagerName, salesManagerNum, row, sheet);
+    // 파싱 및 처리
+    processRawData(rawText, timestamp, salesManagerName, row, sheet);
   } catch (error) {
     alert(error);
     console.error("구글 폼 응답 처리 오류:", error);
 
     // 오류 발생 시 처리상태 업데이트
     try {
-      const headerRow = sheet
-        .getRange(1, 1, 1, sheet.getLastColumn())
-        .getValues()[0];
-      const getColIndex = (name) =>
-        headerRow.findIndex((h) => h.trim() === name.trim());
-      const statusIdx = getColIndex("처리상태");
-      
-      if (statusIdx > -1) {
-        sheet.getRange(row, statusIdx + 1).setValue("처리오류");
+      const lastColumn = sheet.getLastColumn();
+      if (lastColumn >= 4) {
+        sheet.getRange(row, statusIndex).setValue("처리오류");
       }
     } catch (updateError) {
       console.error("처리상태 업데이트 오류:", updateError);
@@ -776,79 +781,6 @@ function getManager(productName) {
   }
 }
 
-// 영업담당자사번으로 이름 찾기
-function getSalesManagerNameByNum(salesManagerNum) {
-  if (!salesManagerNum || salesManagerNum.toString().trim() === "") {
-    Logger.log("영업담당자사번이 없어서 이름을 찾을 수 없음");
-    return "";
-  }
-
-  try {
-    const spreadsheet = getSpreadsheet();
-    const salesManagerSheet =
-      spreadsheet.getSheetByName("영업담당자_리스트");
-
-    if (!salesManagerSheet) {
-      Logger.log("영업담당자_리스트 시트를 찾을 수 없음");
-      return "";
-    }
-
-    const data = salesManagerSheet.getDataRange().getValues();
-    Logger.log("영업담당자 데이터 행 수: " + data.length);
-
-    if (data.length < 2) {
-      Logger.log("영업담당자_리스트 시트에 데이터가 없음");
-      return "";
-    }
-
-    // 헤더 행 확인 (첫 번째 행)
-    const headerRow = data[0];
-    const 사번Idx = headerRow.findIndex((h) => 
-      h && (h.toString().trim() === "사번" || h.toString().trim() === "영업담당자사번")
-    );
-    const 이름Idx = headerRow.findIndex((h) => 
-      h && (h.toString().trim() === "영업담당자" || h.toString().trim() === "이름" || h.toString().trim() === "담당자")
-    );
-
-    if (사번Idx === -1 || 이름Idx === -1) {
-      Logger.log("영업담당자_리스트 시트에 사번 또는 이름 열을 찾을 수 없음");
-      Logger.log("헤더: " + JSON.stringify(headerRow));
-      Logger.log("사번Idx: " + 사번Idx + ", 이름Idx: " + 이름Idx);
-      return "";
-    }
-
-    const 입력사번Str = salesManagerNum.toString().trim();
-    Logger.log("찾는 사번: " + 입력사번Str);
-
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
-      const 사번 = row[사번Idx];
-      const 이름 = row[이름Idx];
-
-      if (사번) {
-        // 사번을 문자열로 비교 (공백 제거)
-        const 사번Str = 사번.toString().trim();
-        
-        if (사번Str === 입력사번Str) {
-          const 찾은이름 = 이름 ? 이름.toString().trim() : "";
-          Logger.log(
-            `영업담당자 매칭: 사번 ${사번Str} → ${찾은이름 || "이름 없음"}`
-          );
-          return 찾은이름;
-        }
-      }
-    }
-
-    Logger.log("매칭되는 영업담당자 없음 (사번: " + 입력사번Str + ")");
-    return "";
-  } catch (error) {
-    Logger.log("영업담당자 매핑 오류: " + error.toString());
-    Logger.log("오류 스택: " + error.stack);
-    console.error("영업담당자 매핑 오류:", error);
-    return "";
-  }
-}
-
 // 견적번호 생성
 function generateEstimateNum(sheet) {
   const lastRow = sheet.getLastRow();
@@ -869,14 +801,12 @@ function generateEstimateNum(sheet) {
 // manager 파라미터 → { name, email } 구조로 받음
 // 시트에 담당자 이름만 저장
 // 담당자 메일이 있으면 sendEmailToManager() 호출
-// salesManagerNum 파라미터 추가: 영업담당자사번으로 이름 찾아서 AI 열에 저장
 function insertToFinalSheet(
   parsedData,
   manager,
   salesManager,
   timestamp,
-  rawText,
-  salesManagerNum
+  rawText
 ) {
   try {
     const spreadsheet = getSpreadsheet();
@@ -886,22 +816,7 @@ function insertToFinalSheet(
       finalSheet = spreadsheet.insertSheet("파싱결과");
     }
 
-    // 영업담당자사번으로 이름 찾기 (먼저 찾기)
-    let salesManagerNameByNum = "";
-    if (salesManagerNum && salesManagerNum.toString().trim() !== "") {
-      salesManagerNameByNum = getSalesManagerNameByNum(salesManagerNum.toString().trim());
-      Logger.log(`영업담당자사번 ${salesManagerNum} → 이름: ${salesManagerNameByNum || "없음"}`);
-    }
-    
-    // 영업담당자 열에 사번으로 찾은 이름 사용 (있으면), 없으면 기존 salesManager 사용
-    const finalSalesManager = salesManagerNameByNum || salesManager || "";
-
-    // 헤더 확인 및 추가
-    let headerRow = [];
-    let aiColIndex = -1;
-    
     if (finalSheet.getLastRow() === 0) {
-      // 헤더가 없으면 생성
       const headers = [
         "견적번호",
         "상태",
@@ -935,99 +850,56 @@ function insertToFinalSheet(
         "견적 금액",
         "견적담당자 비고",
         "메일 발송 상태",
-        "영업 담당자 사번별 이름",
       ];
-      
       finalSheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-      headerRow = headers;
-      aiColIndex = headers.length - 1; // 0-based 인덱스
-    } else {
-      // 헤더가 있으면 읽기
-      const lastCol = finalSheet.getLastColumn();
-      headerRow = finalSheet.getRange(1, 1, 1, lastCol).getValues()[0];
-      
-      const getColIndex = (name) =>
-        headerRow.findIndex((h) => h && h.toString().trim() === name.trim());
-      
-      aiColIndex = getColIndex("영업 담당자 사번별 이름");
-      
-      // AI 열이 없으면 추가
-      if (aiColIndex === -1) {
-        finalSheet.getRange(1, lastCol + 1).setValue("영업 담당자 사번별 이름");
-        aiColIndex = lastCol; // 0-based 인덱스
-      }
     }
 
     const estimateNum = generateEstimateNum(finalSheet);
 
-    // 기본 rowData 생성
     const rowData = [
       estimateNum, // 견적번호
       "접수", // 상태
       "", // 부서(팀)
-      finalSalesManager, // 영업담당자 (사번으로 찾은 이름)
-      manager ? manager.name : "", // 견적담당자
+      salesManager, // 영업담당자
+      manager.name, // 견적담당자
       timestamp || new Date(), // 요청일
       "", // 회신일
       "", // 견적 유효기간
-      parsedData["업체명"] || "", // 업체명
-      parsedData["대분류"] || "", // 대분류
-      parsedData["상품"] || "", // 상품
-      parsedData["규격(스팩)"] || "", // 규격(스팩)
+      parsedData["업체명"], // 업체명
+      parsedData["대분류"], // 대분류
+      parsedData["상품"], // 상품
+      parsedData["규격(스팩)"], // 규격(스팩)
       "", // 영업 정보
-      parsedData["견적요청비고"] || "", // 견적요청비고
+      parsedData["견적요청비고"], // 견적요청비고
       "", // 추가 정보 필요사항
       "", // 샘플 필요여부
-      parsedData["인쇄"] || "", // 인쇄
-      parsedData["색상,도수"] || "", // 색상,도수
-      parsedData["MOQ"] || "", // MOQ
-      parsedData["사용량(월평균)"] || "", // 사용량(월평균)
-      parsedData["사용금액(월평균)"] || "", // 사용금액(월평균)
-      parsedData["지역(착지)"] || "", // 지역(착지)
-      parsedData["기타요청"] || "", // 기타요청
-      parsedData["견적가(매입)"] || "", // 견적가(매입)
+      parsedData["인쇄"], // 인쇄
+      parsedData["색상,도수"], // 색상,도수
+      parsedData["MOQ"], // MOQ
+      parsedData["사용량(월평균)"], // 사용량(월평균)
+      parsedData["사용금액(월평균)"], // 사용금액(월평균)
+      parsedData["지역(착지)"], // 지역(착지)
+      parsedData["기타요청"], // 기타요청
+      parsedData["견적가(매입)"], // 견적가(매입)
       "", // 제안규격
       "", // MOQ2
-      parsedData["공급사"] || "", // 공급사
+      parsedData["공급사"], // 공급사
       "", // 수주여부
       rawText || "", // 원본데이터
       "", // 견적 금액
       "", //견적담당자 비고
-      "발송 전", // 메일 발송 상태
+      "발송 전",
     ];
 
-    // AI 열까지 데이터 채우기 (헤더 열 수에 맞춤)
-    const totalCols = Math.max(headerRow.length, aiColIndex + 1);
-    while (rowData.length < totalCols) {
-      rowData.push("");
-    }
-    
-    // AI 열에 값 설정
-    if (aiColIndex >= 0 && aiColIndex < rowData.length) {
-      rowData[aiColIndex] = salesManagerNameByNum;
-    }
-
-    // 데이터 삽입
     finalSheet.appendRow(rowData);
-    Logger.log("데이터 삽입 완료! 견적번호: " + estimateNum);
-    Logger.log("영업담당자: " + finalSalesManager);
-    Logger.log("AI 열 값: " + salesManagerNameByNum);
+    console.log("데이터 삽입 완료!");
 
     // 담당자 이메일이 있으면 자동 메일 발송
-    if (manager && manager.email) {
-      try {
-        sendEmailToManager(manager, finalSalesManager, parsedData, estimateNum);
-      } catch (emailError) {
-        Logger.log("메일 발송 오류: " + emailError.toString());
-      }
+    if (manager.email) {
+      sendEmailToManager(manager, salesManager, parsedData, estimateNum);
     }
-    
-    return true; // 성공
   } catch (error) {
-    Logger.log("데이터 삽입 오류: " + error.toString());
-    Logger.log("오류 스택: " + (error.stack || "없음"));
     console.error("데이터 삽입 오류:", error);
-    return false; // 실패
   }
 }
 // 신규 함수: 이메일 발송
@@ -1054,7 +926,7 @@ function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
       본 메일은 시스템에서 자동 발송되었습니다.
     </p>
     <h2 style="color: #ef3340">신규 견적 요청 안내</h2>
-    <p>안녕하세요, <b>${manager.name}</b>님.</p>
+    <p>안녕하세요, <sdivong>${manager.name}</sdivong>님.</p>
 
     <p>새로운 견적 요청이 접수되었습니다.</p>
     <div
@@ -1105,21 +977,15 @@ function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
 // 설문지 응답 처리상태 업데이트
 function updateFormResponseStatus(sheet, row, status) {
   try {
-    const headerRow = sheet
-      .getRange(1, 1, 1, sheet.getLastColumn())
-      .getValues()[0];
-    const getColIndex = (name) =>
-      headerRow.findIndex((h) => h && h.toString().trim() === name.trim());
-    const statusIdx = getColIndex("처리상태");
+    const lastColumn = sheet.getLastColumn();
 
-    // 처리상태 컬럼이 없으면 추가
-    if (statusIdx === -1) {
-      const lastColumn = sheet.getLastColumn();
-      sheet.getRange(1, lastColumn + 1).setValue("처리상태");
-      sheet.getRange(row, lastColumn + 1).setValue(status);
-    } else {
-      sheet.getRange(row, statusIdx + 1).setValue(status);
+    // 처리상태 컬럼이 없으면 추가 (C열)
+    if (lastColumn < 4) {
+      // 헤더 추가
+      sheet.getRange(1, statusIndex).setValue("처리상태");
     }
+
+    sheet.getRange(row, statusIndex).setValue(status);
     console.log("처리상태 업데이트:", status);
   } catch (error) {
     console.error("처리상태 업데이트 오류:", error);
@@ -1131,97 +997,53 @@ function processRawData(
   rawText,
   timestamp,
   salesManager,
-  salesManagerNum,
   sourceRow,
   sourceSheet
 ) {
   try {
-    Logger.log("=== 구글 폼 응답 데이터 처리 시작 ===");
-    Logger.log("원본 텍스트: " + (rawText || "없음"));
-    Logger.log("영업담당자: " + (salesManager || "없음"));
-    Logger.log("영업담당자사번: " + (salesManagerNum || "없음"));
-
-    if (!rawText || rawText.trim() === "") {
-      Logger.log("원본 텍스트가 없어서 처리 중단");
-      if (sourceRow && sourceSheet) {
-        updateFormResponseStatus(sourceSheet, sourceRow, "처리오류");
-      }
-      return;
-    }
+    console.log("=== 구글 폼 응답 데이터 처리 시작 ===");
+    console.log("원본 텍스트:", rawText);
 
     const baseData = parseKakaoText(rawText);
-    Logger.log("기본 정보 파싱 결과: " + JSON.stringify(baseData));
+    console.log("기본 정보 파싱 결과:", baseData);
 
     const hasMultipleProducts =
       rawText.match(/^\d+\./m) ||
       (rawText.match(/^상품\s*[:：]/m) && rawText.match(/^규격/m));
 
     if (hasMultipleProducts) {
-      Logger.log("복수 상품 감지");
       const products = parseMultipleProducts(rawText);
-      Logger.log("분리된 상품 수: " + products.length);
+      console.log("분리된 상품들:", products);
 
       for (let i = 0; i < products.length; i++) {
         const product = products[i];
-        Logger.log("처리 중인 상품 " + (i + 1) + ": " + JSON.stringify(product));
+        console.log("처리 중인 상품 " + (i + 1) + ":", product);
 
         const rowData = mapProductData(baseData, product);
         const manager = getManager(rowData.상품);
-        Logger.log("견적담당자: " + (manager ? manager.name : "없음"));
 
-        try {
-          const insertResult = insertToFinalSheet(rowData, manager, salesManager, timestamp, rawText, salesManagerNum);
-          if (insertResult) {
-            Logger.log("상품 " + (i + 1) + " 삽입 완료");
-          } else {
-            Logger.log("상품 " + (i + 1) + " 삽입 실패");
-            throw new Error("데이터 삽입 실패");
-          }
-        } catch (insertError) {
-          Logger.log("상품 " + (i + 1) + " 삽입 오류: " + insertError.toString());
-          throw insertError;
-        }
+        insertToFinalSheet(rowData, manager, salesManager, timestamp, rawText);
+        console.log("상품 " + (i + 1) + " 삽입 완료");
       }
     } else {
-      Logger.log("단일 상품 처리");
       const manager = getManager(baseData.상품);
-      Logger.log("견적담당자: " + (manager ? manager.name : "없음"));
-      
-      try {
-        const insertResult = insertToFinalSheet(baseData, manager, salesManager, timestamp, rawText, salesManagerNum);
-        if (insertResult) {
-          Logger.log("단일 상품 삽입 완료");
-        } else {
-          Logger.log("단일 상품 삽입 실패");
-          throw new Error("데이터 삽입 실패");
-        }
-      } catch (insertError) {
-        Logger.log("단일 상품 삽입 오류: " + insertError.toString());
-        throw insertError;
-      }
+      insertToFinalSheet(baseData, manager, salesManager, timestamp, rawText);
+      console.log("단일 상품 삽입 완료");
     }
 
     // 처리상태 업데이트
     if (sourceRow && sourceSheet) {
       updateFormResponseStatus(sourceSheet, sourceRow, "처리완료");
-      Logger.log("처리상태 업데이트: 처리완료");
     }
 
-    Logger.log("=== 모든 처리 완료 ===");
+    console.log("=== 모든 처리 완료 ===");
   } catch (error) {
-    Logger.log("처리 오류: " + error.toString());
-    Logger.log("오류 스택: " + (error.stack || "없음"));
     console.error("처리 오류:", error);
     console.error("오류 스택:", error.stack);
 
     // 오류 발생 시 처리상태 업데이트
     if (sourceRow && sourceSheet) {
-      try {
-        updateFormResponseStatus(sourceSheet, sourceRow, "처리오류");
-        Logger.log("처리상태 업데이트: 처리오류");
-      } catch (updateError) {
-        Logger.log("처리상태 업데이트 실패: " + updateError.toString());
-      }
+      updateFormResponseStatus(sourceSheet, sourceRow, "처리오류");
     }
   }
 }
@@ -1318,7 +1140,7 @@ function testParsingWithSampleData() {
     console.log("영업담당자:", salesManager);
 
     // processRawData 함수 직접 호출
-    processRawData(sampleText, timestamp, salesManager, "", null, null);
+    processRawData(sampleText, timestamp, salesManager, null, null);
 
     console.log("=== 샘플 데이터 테스트 완료 ===");
   } catch (error) {

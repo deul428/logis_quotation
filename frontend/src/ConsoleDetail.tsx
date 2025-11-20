@@ -41,7 +41,7 @@ const FIELD_ORDER = [
   "수주여부",
   "견적 금액",
   "견적담당자 비고",
-  "메일 발송 상태",
+  // "메일 발송 상태",
   "원본데이터",
   // "견적담당자 메일",
   // "영업 담당자 사번별 이름",
@@ -84,18 +84,18 @@ const ConsoleDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
 
   return (
     <div id="console_detail">
-      <div className="modal-overlay" onClick={onClose}>
+      <div className="modal_overlay" onClick={onClose}>
         <div
-          className="modal-content"
+          className="model_content"
           onClick={(e) => e.stopPropagation()} // 내부 클릭 시 닫히지 않게
         >
           <h2>견적 상세 정보</h2>
 
-          <div className="modal-body">
+          <div className="modal_body">
             {sortedEntries.length > 0 ? (
               <>
                 <div className="table detailTable">
-                  <div className="tbody">
+                  <div className="tbody table_border">
                     {sortedEntries.map(([key, value]) => {
                       let displayValue = value || " ";
 
@@ -119,13 +119,13 @@ const ConsoleDetail: React.FC<Props> = ({ row, onClose, formatCell }) => {
                       );
                     })}
                   </div>
+                  {originalData && (
+                    <div className="field full table_border">
+                      <div className="th">원본데이터</div>
+                      <div className="td">{originalData}</div>
+                    </div>
+                  )}
                 </div>
-                {originalData && (
-                  <div className="field full">
-                    <div className="th">원본데이터</div>
-                    <div className="td">{originalData}</div>
-                  </div>
-                )}
               </>
             ) : (
               <p>데이터가 없습니다.</p>

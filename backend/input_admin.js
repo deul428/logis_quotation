@@ -274,9 +274,12 @@ function updateAdminValue(data) {
     }
 
     let msg = "";
+    const statusColIndex = headers.indexOf("상태") + 1;
 
     const newAmount = data.newAmount || "";
     const newMemo = data.newMemo || "";
+    let shouldUpdateStatus = false; // 상태 업데이트 여부 플래그
+    
     if (data.action.includes("cost")) {
       const amountColIndex = headers.indexOf("견적 금액") + 1;
 
@@ -284,6 +287,7 @@ function updateAdminValue(data) {
       if (newAmount !== "" && amountColIndex > 0) {
         sheet.getRange(targetRow, amountColIndex).setValue(newAmount);
         msg = "견적 금액 업데이트 완료";
+        shouldUpdateStatus = true;
       }
     } else if (data.action.includes("memo")) {
       const memoColIndex = headers.indexOf("견적담당자 비고") + 1;
@@ -291,6 +295,7 @@ function updateAdminValue(data) {
       if (newMemo !== "" && memoColIndex > 0) {
         sheet.getRange(targetRow, memoColIndex).setValue(newMemo);
         msg = "견적 비고 업데이트 완료";
+        shouldUpdateStatus = true;
       }
     } else if (data.action.includes("all")) {
       const amountColIndex = headers.indexOf("견적 금액") + 1;
@@ -306,7 +311,22 @@ function updateAdminValue(data) {
           sheet.getRange(targetRow, amountColIndex).setValue(newAmount);
           sheet.getRange(targetRow, memoColIndex).setValue(newMemo);
           msg = "견적 금액 및 비고 업데이트 완료";
+          shouldUpdateStatus = true;
         }
+      }
+    }
+    
+    // 견적 금액 또는 비고 입력 후 메일 발송하지 않은 경우 상태를 "접수진행중"으로 업데이트
+    // (메일 발송은 별도 함수에서 처리하므로, 여기서는 입력만 했을 때 상태 업데이트)
+    if (shouldUpdateStatus && statusColIndex > 0) {
+      const currentStatus = sheet.getRange(targetRow, statusColIndex).getValue();
+      // 현재 상태가 "접수 전"이거나 빈 값인 경우에만 "접수진행중"으로 업데이트
+      // (이미 "발송완료"인 경우는 유지)
+      if (!currentStatus || currentStatus === "접수 전" || currentStatus === "") {
+        sheet.getRange(targetRow, statusColIndex).setValue("접수진행중");
+        Logger.log(
+          `견적번호 ${estimateNum} 행(${targetRow})에 상태를 '접수진행중'으로 업데이트 완료`
+        );
       }
     }
 
@@ -529,7 +549,7 @@ function validateStatusUpdate(data) {
     return { valid: false, message: "새 상태가 필요합니다." };
   }
 
-  const validStatuses = ["접수", "진행중", "완료", "보류", "취소"];
+  const validStatuses = ["접수 전", "접수진행중", "발송완료", "접수", "진행중", "완료", "보류", "취소"];
   if (!validStatuses.includes(data.newStatus)) {
     return {
       valid: false,
@@ -693,9 +713,10 @@ function sendEmailToSalesManager(data) {
     const headers = sheetData[0];
     const estimateNumCol = headers.indexOf("견적번호");
     const mailSttsCol = headers.indexOf("메일 발송 상태");
+    const statusCol = headers.indexOf("상태");
     // const amountCol = headers.indexOf("견적 금액");
 
-    if (estimateNumCol === -1 || mailSttsCol === -1 /* || amountCol === -1 */) {
+    if (estimateNumCol === -1 || mailSttsCol === -1) {
       throw new Error(
         "'견적번호' 또는 '메일 발송 상태' 열을 찾을 수 없습니다."
       );
@@ -707,7 +728,19 @@ function sendEmailToSalesManager(data) {
     for (let i = 1; i < sheetData.length; i++) {
       const rowEstimate = String(sheetData[i][estimateNumCol]).trim();
       if (rowEstimate === String(data.row.estimateNum).trim()) {
+        // 메일 발송 상태 업데이트
         sheet.getRange(i + 1, mailSttsCol + 1).setValue("발송 완료");
+        
+        // 상태를 "발송완료"로 업데이트
+        if (statusCol !== -1) {
+          sheet.getRange(i + 1, statusCol + 1).setValue("발송완료");
+          Logger.log(
+            `견적번호 ${data.row.estimateNum} 행(${
+              i + 1
+            })에 상태를 '발송완료'로 업데이트 완료`
+          );
+        }
+        
         Logger.log(
           `견적번호 ${data.row.estimateNum} 행(${
             i + 1

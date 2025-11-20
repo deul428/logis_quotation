@@ -1,19 +1,44 @@
 {
   "compilerOptions": {
+    /* JS 타겟 및 라이브러리 */
     "target": "ES2020",
     "lib": ["DOM", "DOM.Iterable", "ES2020"],
+
+    /* JS 허용 여부 */
     "allowJs": false,
+
+    /* 타입 검사 최소화(react-icons, 여러 lib 오류 방지) */
     "skipLibCheck": true,
+
+    /* ES 모듈 호환 */
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+
+    /* 타입 검사의 엄격 모드 */
     "strict": true,
+
+    /* 파일명 대소문자 일관성 */
     "forceConsistentCasingInFileNames": true,
+
+    /* 모듈 시스템 */
     "module": "ESNext",
     "moduleResolution": "Node",
+
+    /* JSON import */
     "resolveJsonModule": true,
+
+    /* isolated modules (Vite/CRA compatibility) */
     "isolatedModules": true,
     "noEmit": true,
-    "jsx": "react-jsx"
+
+    /* JSX 변환 방식 (React 17~19 표준) */
+    "jsx": "react-jsx",
+
+    /* Node16/Next 환경일 경우 충돌 방지 */
+    "allowImportingTsExtensions": false,
+
+    /* js/tsx import path에서 확장자 제거 규칙 강화 */
+    "noImplicitAny": false
   },
   "include": ["src"]
 }

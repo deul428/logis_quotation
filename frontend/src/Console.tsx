@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./assets/styles/console.scss";
 import "./assets/styles/loader.css";
 import "./assets/styles/common.scss";
-import ConsoleDetail from "./ConsoleDetail.tsx";
+import ConsoleDetail from "./ConsoleDetail";
 import { MdKeyboardDoubleArrowUp } from "react-icons/md";
 import {
   MdOutlineKeyboardArrowUp,
@@ -11,7 +11,7 @@ import {
 } from "react-icons/md";
 import { IoReload } from "react-icons/io5";
 import { useLocation, useNavigate } from "react-router-dom";
-import Header from "./Header.tsx";
+import Header from "./Header";
 interface FetchResponse {
   status: string;
   message?: string;
@@ -59,6 +59,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
   const [searchSalesManager, setSearchSalesManager] = useState<string>("");
   const [searchCompany, setSearchCompany] = useState<string>("");
   const [searchReqDate, setSearchReqDate] = useState<string>("");
+  const [searchStts, setSearchStts] = useState<string>("");
 
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedRow, setSelectedRow] = useState<Record<string, string> | null>(
@@ -471,6 +472,9 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     }
 
     if (!window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")) {
+      setTimeout(() => {
+        loadData();
+      }, 1200);
       return;
     }
     if (!row.salesManager) {
@@ -541,7 +545,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     const managerColIndex = header.indexOf("견적담당자");
     const salesManagerColIndex = header.indexOf("영업담당자");
     const companyColIndex = header.indexOf("업체명");
-    const reqDateColIndex = header.indexOf("요청일");
+    const reqDateColIndex = header.indexOf("상태");
 
     // ✅ 여러 검색어가 있으면 AND 조건으로 필터링
     const filteredRows = rows.filter((row) => {
@@ -586,6 +590,16 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
         if (!cellValue) return false;
         if (
           !String(cellValue).toLowerCase().includes(searchReqDate.toLowerCase())
+        ) {
+          return false;
+        }
+      }
+      if (searchStts.trim() !== "") {
+        const cellValue = row[reqDateColIndex];
+        console.log(searchStts);
+        if (!cellValue) return false;
+        if (
+          !String(cellValue).toLowerCase().includes(searchStts.toLowerCase())
         ) {
           return false;
         }
@@ -645,7 +659,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                   </div>
                 );
               })}
-              <div className="th sendMail">메일 발송</div>
+              <div className="th status">진행 상태</div>
             </div>
           </div>
           <div className="tbody">
@@ -745,7 +759,6 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                       );
                     }
 
-                    // ✅ 나머지 열은 기존대로 출력
                     return (
                       <div key={i} className={`td ${engKey}`}>
                         <div className="tdText">{formatCell(value)}</div>
@@ -754,26 +767,36 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                   })}
 
                   <div
-                    className={`td sendMail`}
+                    className={`td status`}
                     onClick={(e) => {
                       e.stopPropagation();
                     }}
                   >
                     <button
                       className={`danger ${
-                        row[header.indexOf("메일 발송 상태")]
+                        row[header.indexOf("상태")]
                           .toString()
                           .replace(/ /g, "")
                           .trim() === "발송완료"
                           ? "sent"
+                          : row[header.indexOf("상태")]
+                              .toString()
+                              .replace(/ /g, "")
+                              .trim() === "접수진행중"
+                          ? "progress"
                           : "pending"
                       }`}
                       style={
-                        row[header.indexOf("메일 발송 상태")]
+                        row[header.indexOf("상태")]
                           .toString()
                           .replace(/ /g, "")
                           .trim() === "발송완료"
                           ? { background: "#211a1a" }
+                          : row[header.indexOf("상태")]
+                              .toString()
+                              .replace(/ /g, "")
+                              .trim() === "접수진행중"
+                          ? { background: "#e27a2f" }
                           : { background: "#d82222" }
                       }
                       onClick={(e) => {
@@ -782,11 +805,10 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                           acc[key] = row[idx];
                           return acc;
                         }, {} as Record<string, string>);
-                        // setSelectedRow(rowObj);
                         sendEmailToSalesManager(rowObj, e);
                       }}
                     >
-                      {row[header.indexOf("메일 발송 상태")]}
+                      {row[header.indexOf("상태")]}
                     </button>
                   </div>
                 </div>
@@ -812,9 +834,10 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
     setSearchSalesManager("");
     setSearchCompany("");
     setSearchReqDate("");
+    setSearchStts("");
   };
   const searchFilter = (key: any, value: string) => {
-    console.log(value);
+    console.log(key, value);
     if (key === "manager") {
       setSearchManager(value);
     } else if (key === "salesManager") {
@@ -823,6 +846,8 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
       setSearchCompany(value);
     } else if (key === "requestDate") {
       setSearchReqDate(value);
+    } else if (key === "status") {
+      setSearchStts(value);
     }
   };
   return (
@@ -846,7 +871,7 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
           <></>
         )}
         {allColumns.length > 0 && (
-          <div id="search_area">
+          <div id="search_area" className="table_border">
             {/* <h3>검색</h3> */}
             <div className="search_box">
               <div className="th">
@@ -910,6 +935,32 @@ const Console: React.FC<any> = ({ ChildProps: tabData, setTabData }) => {
                     searchFilter(e.target.dataset.key, e.target.value)
                   }
                 />
+              </div>
+            </div>
+            <div className="search_box">
+              <div className="th">
+                <label key="company">진행 상태</label>
+              </div>
+              <div className="td">
+                <select
+                  data-key="status"
+                  onChange={(e) =>
+                    searchFilter(e.target.dataset.key, e.target.value)
+                  }
+                >
+                  <option>접수 전</option>
+                  <option>접수진행중</option>
+                  <option>발송완료</option>
+                </select>
+                {/*  <input
+                  data-key="company"
+                  placeholder="업체명 검색"
+                  type="text"
+                  value={searchCompany}
+                  onChange={(e) =>
+                    searchFilter(e.target.dataset.key, e.target.value)
+                  }
+                /> */}
               </div>
             </div>
 
