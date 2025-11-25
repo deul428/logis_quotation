@@ -17,6 +17,7 @@ const Login: React.FC = () => {
     { id: "manager", pw: "abcd", name: "manager" },
     { id: "guest", pw: "guest", name: "guest" },
     { id: "gksektha12", pw: "218738", name: "testuser" },
+    { id: "jinhob", pw: "221353", name: "testuser" },
   ];
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
