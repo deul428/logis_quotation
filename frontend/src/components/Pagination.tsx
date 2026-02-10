@@ -1,0 +1,115 @@
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Button from "./Button";
+
+interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  total: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
+  onPageSizeChange?: (pageSize: number) => void;
+  pageSizeOptions?: number[];
+  disabled?: boolean;
+}
+
+const Pagination: React.FC<PaginationProps> = ({
+  currentPage,
+  totalPages,
+  total,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+  pageSizeOptions = [10, 15, 30, 50],
+  disabled,
+}) => {
+  const getPageNumbers = () => {
+    const pages: number[] = [];
+    const maxButtons = 5;
+
+    if (totalPages <= maxButtons) {
+      for (let p = 1; p <= totalPages; p++) pages.push(p);
+      return pages;
+    }
+
+    if (currentPage <= 3) {
+      for (let p = 1; p <= 5; p++) pages.push(p);
+      return pages;
+    }
+
+    if (currentPage >= totalPages - 2) {
+      for (let p = totalPages - 4; p <= totalPages; p++) pages.push(p);
+      return pages;
+    }
+
+    for (let p = currentPage - 2; p <= currentPage + 2; p++) pages.push(p);
+    return pages;
+  };
+
+  const pageNumbers = getPageNumbers();
+  const startIndex = total > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const endIndex = total > 0 ? Math.min(currentPage * pageSize, total) : 0;
+
+  return (
+    <div className="flex flex-col sm:flex-row justify-start items-center gap-4 mt-6 pt-6 border-t border-gray-200">
+      <div className="w-[30%]" />
+      <div className="flex justify-center items-center gap-2 w-[40%]">
+        <div className="flex items-center gap-2">
+          <Button
+            variant="icon"
+            onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+            disabled={disabled || currentPage === 1}
+            size="md"
+            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </Button>
+
+          <div className="flex items-center gap-1">
+            {pageNumbers.map((p) => (
+              <Button
+                variant="primary"
+                onClick={() => onPageChange(p)}
+                disabled={disabled}
+                size="md"
+                key={p}
+                className={`!px-4 !py-2 rounded-lg text-sm font-bold transition-colors ${currentPage === p ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  } disabled:opacity-50 disabled:cursor-not-allowed`}
+              >
+                {p}
+              </Button>
+            ))}
+          </div>
+
+          <Button
+            variant="icon"
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={disabled || currentPage === totalPages}
+            size="md"
+            className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+      {onPageSizeChange && (
+        <div className="w-[30%] flex justify-end">
+          <select
+            value={pageSize}
+            onChange={(e) => onPageSizeChange(Number(e.target.value))}
+            disabled={disabled}
+            className="w-[100px] px-2 py-1.5 border border-gray-300 rounded-md text-sm"
+          >
+            {pageSizeOptions.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}개씩
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Pagination;

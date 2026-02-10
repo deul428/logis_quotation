@@ -14,7 +14,7 @@ export default {
       });
     }
 
-    const targetKey = "AKfycbw55yon27vGRv2GFGq3mrHhUhdPk-dpUCnHltGPMBttjUYTci6Bgz5y8so_D_dPqZFH";
+    const targetKey = "AKfycbw1XxFKw-Uta0PETBvCwEb7zI2q4M15EYOrvEijZUSqcLLBGlGFT-DZ7GL9q_sAnTg";
     const targetUrl = "https://script.google.com/macros/s/"+targetKey+"/exec";
     const method = request.method;
     const headers = { "Content-Type": "application/json" };

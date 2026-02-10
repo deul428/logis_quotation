@@ -107,8 +107,15 @@ function onFormResponseEdit(e) {
   }
 }
 
-// 하드코딩, 처리상태 열 인덱스
-const statusIndex = 5;
+// ⚠️ 처리상태는 절대 하드코딩 인덱스로 쓰지 않는다. (헤더명 '처리상태'로 탐색)
+function getStatusColumnIndexOrigin_(sheet) {
+  const headerRow = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  const idx = headerRow.findIndex((h) => h && String(h).trim() === "처리상태");
+  if (idx >= 0) return idx; // 0-based
+  const newCol = headerRow.length + 1;
+  sheet.getRange(1, newCol).setValue("처리상태");
+  return newCol - 1;
+}
 // 구글 폼 응답 처리 함수
 function processFormResponse(sheet, row) {
   try {
@@ -142,10 +149,9 @@ function processFormResponse(sheet, row) {
     // 원본텍스트가 있는 경우만 처리
     console.log("데이터 파싱 시작");
 
-    // 처리상태 컬럼이 있다면 업데이트 (C열로 가정)
-    if (lastColumn >= 5) {
-      sheet.getRange(row, statusIndex).setValue("처리중");
-    }
+    // 처리상태: 헤더 '처리상태' 컬럼으로 업데이트
+    const statusCol = statusIdx >= 0 ? statusIdx : getStatusColumnIndexOrigin_(sheet);
+    sheet.getRange(row, statusCol + 1).setValue("처리중");
 
     // 파싱 및 처리
     processRawData(rawText, timestamp, salesManagerName, row, sheet);
@@ -153,12 +159,10 @@ function processFormResponse(sheet, row) {
     alert(error);
     console.error("구글 폼 응답 처리 오류:", error);
 
-    // 오류 발생 시 처리상태 업데이트
+    // 오류 발생 시 처리상태 업데이트 (헤더 기준)
     try {
-      const lastColumn = sheet.getLastColumn();
-      if (lastColumn >= 5) {
-        sheet.getRange(row, statusIndex).setValue("처리오류");
-      }
+      const statusCol = getStatusColumnIndexOrigin_(sheet);
+      sheet.getRange(row, statusCol + 1).setValue("처리오류");
     } catch (updateError) {
       console.error("처리상태 업데이트 오류:", updateError);
     }
@@ -967,15 +971,8 @@ function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
 // 설문지 응답 처리상태 업데이트
 function updateFormResponseStatus(sheet, row, status) {
   try {
-    const lastColumn = sheet.getLastColumn();
-
-    // 처리상태 컬럼이 없으면 추가 (C열)
-    if (lastColumn < 4) {
-      // 헤더 추가
-      sheet.getRange(1, statusIndex).setValue("처리상태");
-    }
-
-    sheet.getRange(row, statusIndex).setValue(status);
+    const statusCol = getStatusColumnIndexOrigin_(sheet);
+    sheet.getRange(row, statusCol + 1).setValue(status);
     console.log("처리상태 업데이트:", status);
   } catch (error) {
     console.error("처리상태 업데이트 오류:", error);

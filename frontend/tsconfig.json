@@ -38,7 +38,11 @@
     "allowImportingTsExtensions": false,
 
     /* js/tsx import path에서 확장자 제거 규칙 강화 */
-    "noImplicitAny": false
+    "noImplicitAny": false,
+
+    /* 경로 별칭 (기준 프로젝트와 동일) */
+    "baseUrl": "src",
+    "paths": { "@/*": ["./*"] }
   },
   "include": ["src"]
 }

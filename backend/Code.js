@@ -84,17 +84,18 @@ function doPost(e) {
     if (data.action === 'readAll') {
       return handleReadRequest();
     }
-    // 1) 사용자 제출 라우팅
+    // 1) 사용자 제출 라우팅 (단일 문의내용 → 파싱 후 파싱결과 시트)
     if (mode === "user") {
-      // 이건 고객이 index_user.html 에서 남긴 문의 내용이
-      // 최종적으로 우리 시스템(DB 시트)에 들어가야 하는 플로우.
-      //
-      // 실제 로직은 input_user.js의 userPostEntry() 쪽에서 돌린다.
       return userPostEntry(data);
     }
 
+    // 1-2) User02 전용: 멀티 필드 제출 → 파싱 없이 파싱결과_멀티필드 시트에만 기록
+    if (mode === "user02") {
+      return user02PostEntry(data);
+    }
+
     // 2) 관리자 라우팅
-    if (mode === "console") {[]
+    if (mode === "console") {
       // 실제 로직은 input_admin.js의 adminPostEntry() 쪽으로 넘긴다.
       return adminPostEntry(data);
     }

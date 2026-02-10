@@ -10,6 +10,27 @@ function getSpreadsheet() {
 }
 
 // ============================================
+// 컬럼 탐색 유틸 (인덱스 기반 접근 금지)
+// - 시트 헤더 문자열(공백 포함/미포함)을 정규화해서 동일 컬럼을 찾는다.
+// ============================================
+function normalizeHeader_(v) {
+  return String(v || "").replace(/\s/g, "").trim();
+}
+
+function findHeaderIndex_(headers, headerName) {
+  const target = normalizeHeader_(headerName);
+  return headers.findIndex((h) => normalizeHeader_(h) === target);
+}
+
+function requireCol1Based_(headers, headerName) {
+  const idx = findHeaderIndex_(headers, headerName);
+  if (idx === -1) {
+    throw new Error(`'${headerName}' 열을 찾을 수 없습니다.`);
+  }
+  return idx + 1; // 1-based
+}
+
+// ============================================
 // 진입점 함수들 (웹앱 배포용)
 // ============================================
 
@@ -117,7 +138,7 @@ function handleReadSpecific(estimateNum) {
 
     const data = sheet.getDataRange().getValues();
     const headers = data[0];
-    const estimateNumCol = headers.indexOf("견적번호");
+    const estimateNumCol = findHeaderIndex_(headers, "견적번호");
 
     if (estimateNumCol === -1) {
       return errorResponse("견적번호 열을 찾을 수 없습니다.");
@@ -169,7 +190,7 @@ function handleReadFiltered(params) {
 
       // 상태 필터
       if (params.status) {
-        const statusCol = headers.indexOf("상태");
+        const statusCol = findHeaderIndex_(headers, "상태");
         if (statusCol !== -1 && row[statusCol] !== params.status) {
           match = false;
         }
@@ -177,7 +198,7 @@ function handleReadFiltered(params) {
 
       // 업체명 필터
       if (params.company && match) {
-        const companyCol = headers.indexOf("업체명");
+        const companyCol = findHeaderIndex_(headers, "업체명");
         if (
           companyCol !== -1 &&
           !row[companyCol].toString().includes(params.company)
@@ -188,7 +209,7 @@ function handleReadFiltered(params) {
 
       // 담당자 필터
       if (params.manager && match) {
-        const managerCol = headers.indexOf("견적담당자");
+        const managerCol = findHeaderIndex_(headers, "견적담당자");
         if (
           managerCol !== -1 &&
           !row[managerCol].toString().includes(params.manager)
@@ -246,13 +267,7 @@ function updateAdminValue(data) {
     const headers = sheet
       .getRange(1, 1, 1, sheet.getLastColumn())
       .getValues()[0];
-    const estimateNumColIndex = headers.indexOf("견적번호") + 1;
-    if (estimateNumColIndex === 0) {
-      return jsonResponse({
-        status: "error",
-        message: "견적번호 열을 찾을 수 없습니다.",
-      });
-    }
+    const estimateNumColIndex = requireCol1Based_(headers, "견적번호");
 
     // 견적번호로 행 찾기
     const dataRange = sheet.getDataRange();
@@ -274,14 +289,14 @@ function updateAdminValue(data) {
     }
 
     let msg = "";
-    const statusColIndex = headers.indexOf("상태") + 1;
+    const statusColIndex = requireCol1Based_(headers, "상태");
 
     const newAmount = data.newAmount || "";
     const newMemo = data.newMemo || "";
     let shouldUpdateStatus = false; // 상태 업데이트 여부 플래그
 
     if (data.action.includes("cost")) {
-      const amountColIndex = headers.indexOf("견적 금액") + 1;
+      const amountColIndex = requireCol1Based_(headers, "견적 금액");
 
       // 견적 금액 업데이트
       if (newAmount !== "" && amountColIndex > 0) {
@@ -290,7 +305,7 @@ function updateAdminValue(data) {
         shouldUpdateStatus = true;
       }
     } else if (data.action.includes("memo")) {
-      const memoColIndex = headers.indexOf("견적담당자 비고") + 1;
+      const memoColIndex = requireCol1Based_(headers, "견적담당자 비고");
       // 견적담당자 비고 업데이트
       if (newMemo !== "" && memoColIndex > 0) {
         sheet.getRange(targetRow, memoColIndex).setValue(newMemo);
@@ -298,8 +313,8 @@ function updateAdminValue(data) {
         shouldUpdateStatus = true;
       }
     } else if (data.action.includes("all")) {
-      const amountColIndex = headers.indexOf("견적 금액") + 1;
-      const memoColIndex = headers.indexOf("견적담당자 비고") + 1;
+      const amountColIndex = requireCol1Based_(headers, "견적 금액");
+      const memoColIndex = requireCol1Based_(headers, "견적담당자 비고");
       if (
         newAmount !== "" &&
         amountColIndex > 0 &&
@@ -316,22 +331,22 @@ function updateAdminValue(data) {
       }
     }
 
-    // 견적 금액 또는 비고 입력 후 메일 발송하지 않은 경우 상태를 "접수진행중"으로 업데이트
+    // 견적 금액 또는 비고 입력 후 메일 발송하지 않은 경우 상태를 "접수중"으로 업데이트
     // (메일 발송은 별도 함수에서 처리하므로, 여기서는 입력만 했을 때 상태 업데이트)
     if (shouldUpdateStatus && statusColIndex > 0) {
       const currentStatus = sheet
         .getRange(targetRow, statusColIndex)
         .getValue();
-      // 현재 상태가 "접수 전"이거나 빈 값인 경우에만 "접수진행중"으로 업데이트
+      // 현재 상태가 "접수전"이거나 빈 값인 경우에만 "접수중"으로 업데이트
       // (이미 "발송완료"인 경우는 유지)
       if (
         !currentStatus ||
-        currentStatus === "접수 전" ||
+        currentStatus === "접수전" ||
         currentStatus === ""
       ) {
-        sheet.getRange(targetRow, statusColIndex).setValue("접수진행중");
+        sheet.getRange(targetRow, statusColIndex).setValue("접수중");
         Logger.log(
-          `견적번호 ${estimateNum} 행(${targetRow})에 상태를 '접수진행중'으로 업데이트 완료`
+          `견적번호 ${estimateNum} 행(${targetRow})에 상태를 '접수중'으로 업데이트 완료`
         );
       }
     }
@@ -352,52 +367,7 @@ function updateAdminValue(data) {
   }
 }
 
-/* function handleUpdateEstimate(data) {
-  try {
-    // 입력 검증
-    const validation = validateEstimateUpdate(data);
-    if (!validation.valid) {
-      return errorResponse(validation.message);
-    }
-
-    const ss = getSpreadsheet();
-    const sheet = ss.getSheetByName("파싱결과");
-    const all = sheet.getDataRange().getValues();
-    const headers = all[0];
-
-    const numCol = headers.indexOf("견적번호") + 1;
-    const amountCol = headers.indexOf("견적 금액") + 1;
-
-    if (!numCol || !amountCol) {
-      throw new Error("견적번호 또는 견적 금액 열을 찾을 수 없습니다.");
-    }
-
-    for (let i = 1; i < all.length; i++) {
-      if (String(all[i][numCol - 1]) === String(data.estimateNum)) {
-        sheet.getRange(i + 1, amountCol).setValue(data.newAmount);
-
-        console.log(
-          "견적 금액 업데이트 완료:",
-          data.estimateNum,
-          "→",
-          data.newAmount
-        );
-
-        return jsonResponse({
-          status: "success",
-          message: "견적 금액 업데이트 완료",
-          estimateNum: data.estimateNum,
-          newAmount: data.newAmount,
-        });
-      }
-    }
-
-    return errorResponse("견적번호를 찾을 수 없습니다: " + data.estimateNum);
-  } catch (error) {
-    console.error("견적 금액 업데이트 오류:", error);
-    return errorResponse("견적 업데이트 오류: " + error.toString());
-  }
-} */
+// (정리) 과거 사용하던 handleUpdateEstimate는 더 이상 사용하지 않습니다.
 
 /**
  * 상태 업데이트
@@ -415,8 +385,8 @@ function handleUpdateStatus(data) {
     const all = sheet.getDataRange().getValues();
     const headers = all[0];
 
-    const numCol = headers.indexOf("견적번호") + 1;
-    const statusCol = headers.indexOf("상태") + 1;
+    const numCol = requireCol1Based_(headers, "견적번호");
+    const statusCol = requireCol1Based_(headers, "상태");
 
     if (!numCol || !statusCol) {
       throw new Error("견적번호 또는 상태 열을 찾을 수 없습니다.");
@@ -465,8 +435,8 @@ function handleUpdateManager(data) {
     const all = sheet.getDataRange().getValues();
     const headers = all[0];
 
-    const numCol = headers.indexOf("견적번호") + 1;
-    const managerCol = headers.indexOf("견적담당자") + 1;
+    const numCol = requireCol1Based_(headers, "견적번호");
+    const managerCol = requireCol1Based_(headers, "견적담당자");
 
     if (!numCol || !managerCol) {
       throw new Error("견적번호 또는 견적담당자 열을 찾을 수 없습니다.");
@@ -555,16 +525,7 @@ function validateStatusUpdate(data) {
     return { valid: false, message: "새 상태가 필요합니다." };
   }
 
-  const validStatuses = [
-    "접수 전",
-    "접수진행중",
-    "발송완료",
-    "접수",
-    "진행중",
-    "완료",
-    "보류",
-    "취소",
-  ];
+  const validStatuses = ["접수전", "접수중", "발송완료", "접수취소"];
   if (!validStatuses.includes(data.newStatus)) {
     return {
       valid: false,
@@ -624,7 +585,6 @@ function sendEmailToSalesManager(data) {
         rawText:
           ' "업체명: AJ 네트웍스\n지역: 서울 송파구\n1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장\n2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원 / 인쇄: 안함\n요청사항: 납기 일정 회신 부탁드립니다."',
         quoteAmount: 99999,
-        mailStatus: "발송 전",
       },
     };
   }
@@ -655,10 +615,12 @@ function sendEmailToSalesManager(data) {
   }
   try {
     // ✅ 메일 내용 구성
-    if (!data.row.salesManagerEmail) {
+    const recipient = String(data.row.salesManagerEmail || "").trim();
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient);
+    if (!emailOk) {
       return jsonResponse({
         status: "fail",
-        message: `영업 담당자 정보가 없습니다.`,
+        message: `영업담당자메일이 올바르지 않습니다: ${recipient || "(비어있음)"}`,
       });
     }
     const subject = `신규 견적 요청 접수 확인 (#${data.row.estimateNum})`;
@@ -726,31 +688,20 @@ function sendEmailToSalesManager(data) {
 
     const sheetData = sheet.getDataRange().getValues();
     const headers = sheetData[0];
-    const estimateNumCol = headers.indexOf("견적번호"); 
-    const statusCol = headers.indexOf("상태"); 
+    const estimateNumCol = findHeaderIndex_(headers, "견적번호");
+    const statusCol = findHeaderIndex_(headers, "상태");
 
     if (estimateNumCol === -1 || statusCol === -1) {
       throw new Error("'견적번호' 또는 '상태' 열을 찾을 수 없습니다.");
     }
 
-    const recipient = data.row.salesManagerEmail || "kimhs@ajnet.co.kr";
     GmailApp.sendEmail(recipient, subject, bodyText, { htmlBody });
     // ✅ 행 탐색 및 상태 업데이트
     for (let i = 1; i < sheetData.length; i++) {
       const rowEstimate = String(sheetData[i][estimateNumCol]).trim();
       if (rowEstimate === String(data.row.estimateNum).trim()) {
-        // 메일 발송 상태 업데이트
+        // 상태를 "발송완료"로 업데이트 (메일발송상태 컬럼은 사용하지 않음 - 상태로 통합)
         sheet.getRange(i + 1, statusCol + 1).setValue("발송완료");
-
-        // 상태를 "발송완료"로 업데이트
-        if (statusCol !== -1) {
-          sheet.getRange(i + 1, statusCol + 1).setValue("발송완료");
-          Logger.log(
-            `견적번호 ${data.row.estimateNum} 행(${
-              i + 1
-            })에 상태를 '발송완료'로 업데이트 완료`
-          );
-        }
 
         Logger.log(
           `견적번호 ${data.row.estimateNum} 행(${
