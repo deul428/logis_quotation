@@ -1,7 +1,13 @@
 /* 공통 스타일 - 참조(source_260127)와 동일 */
+:root {
+  /* Tailwind CDN에서 사용하는 var(--font-pretendard) 호환 */
+  --font-pretendard: "Pretendard Variable";
+}
+
 html,
 body {
   font-family:
+    var(--font-pretendard),
     "Pretendard Variable",
     Pretendard,
     -apple-system,
@@ -13,7 +19,7 @@ body {
     "Apple SD Gothic Neo",
     "Noto Sans KR",
     "Malgun Gothic",
-    sans-serif;
+    sans-serif !important;
 }
 
 @media print {

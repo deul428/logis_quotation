@@ -23,6 +23,3 @@
 /frontend/npm-debug.log*
 /frontend/yarn-debug.log*
 /frontend/yarn-error.log*
-
-# 백엔드: 구글 앱스 스크립트 내부 코드로 코드 저장용임.
-/backend copy/*
