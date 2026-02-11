@@ -53,19 +53,6 @@ const SORTABLE_COLUMNS = [
   "견적 금액",
 ];
 
-/**
- * 상세 모달을 여는 트리거 컬럼
- * - 이 배열에 있는 "헤더(컬럼) 값"을 클릭할 때만 상세 모달을 엽니다.
- * - 쉽게 추가/삭제해서 관리하세요.
- */
-const DETAIL_MODAL_TRIGGER_COLUMNS = [
-  "견적번호",
-  "영업담당자",
-  "견적담당자"
-  // "업체명",
-  // "상품",
-];
-
 const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
   const [allColumns, setAllColumns] = useState<string[]>([]);
   const [activeColumns, setActiveColumns] = useState<string[]>([]);
@@ -568,7 +555,10 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
       }
     }
 
-    if (!window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")) { 
+    if (!window.confirm("영업 담당자에게 견적 확정 메일을 발송하시겠습니까?")) {
+      setTimeout(() => {
+        loadData();
+      }, 1200);
       return;
     }
     if (!row.salesManager) {
@@ -640,7 +630,6 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
     if (!data || data.length === 0) {
       return null;
     }
-    const modalTriggerSet = new Set(DETAIL_MODAL_TRIGGER_COLUMNS.map((c) => c.toString().trim()));
     return (
       <div className="overflow-y-auto min-h-[400px]" ref={tableRef}>
         <div className="flex items-center justify-between mb-4">
@@ -662,7 +651,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                       <th
                         key={i}
                         onClick={() => isSortable && handleSort(colName)}
-                        className={`max-w-[150px] px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 ${isSortable ? "cursor-pointer hover:bg-gray-100" : ""
+                        className={`px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 ${isSortable ? "cursor-pointer hover:bg-gray-100" : ""
                           }`}
                       >
                         <div className="flex items-center gap-2">
@@ -691,7 +680,14 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                     return (
                       <tr
                         key={estimateNum || rowIdx}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-gray-50 cursor-pointer transition-colors"
+                        onClick={() => {
+                          const rowObj = header.reduce((acc, key, idx) => {
+                            acc[key] = row[idx];
+                            return acc;
+                          }, {} as Record<string, string>);
+                          setSelectedRow(rowObj);
+                        }}
                       >
                         {enabledIndexes.map((i) => {
                           const colName = header[i];
@@ -701,7 +697,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                           if (colName.toString().replace(/ /g, "").trim() === "견적담당자비고") {
                             const memoValue = editedMemo[estimateNum] ?? value ?? "";
                             return (
-                              <td key={i} className="max-w-[150px] px-3 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
+                              <td key={i} className="px-3 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center gap-1 min-w-0">
                                   <input
                                     type="text"
@@ -731,7 +727,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                           if (colName.toString().replace(/ /g, "").trim() === "견적금액") {
                             const amountValue = editedAmounts[estimateNum] ?? value ?? "";
                             return (
-                              <td key={i} className="max-w-[150px] px-3 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
+                              <td key={i} className="px-3 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center gap-1 min-w-0">
                                   <input
                                     type="number"
@@ -754,29 +750,6 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                                     저장
                                   </Button>
                                 </div>
-                              </td>
-                            );
-                          }
-
-                          // 특정 컬럼 값 클릭 시에만 상세 모달 오픈
-                          if (modalTriggerSet.has(colName?.toString().trim())) {
-                            return (
-                              <td key={i} className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                <Button
-                                  type="button"
-                                  variant="link"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const rowObj = header.reduce((acc, key, idx) => {
-                                      acc[key] = row[idx];
-                                      return acc;
-                                    }, {} as Record<string, string>);
-                                    setSelectedRow(rowObj);
-                                  }}
-                                  title="상세 보기"
-                                >
-                                  <span className="line-clamp-2 break-words">{formatCell(value)}</span>
-                                </Button>
                               </td>
                             );
                           }
@@ -884,7 +857,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
         ) : null}
         {allColumns.length > 0 && (
           <div className="mb-6 grid grid-cols-1 sm:grid-cols-2   
-          gap-4" style={{ gridTemplateColumns: 'repeat(5, 3fr) 1fr' }}>
+          gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200 " style={{ gridTemplateColumns: 'repeat(5, 3fr) 1fr' }}>
             <div className="flex flex-col gap-1">
               <label className="text-xs font-medium text-gray-600">견적 담당자</label>
               <input

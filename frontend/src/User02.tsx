@@ -128,8 +128,8 @@ ${products
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-6 sm:px-6 sm:py-8 pb-8 min-h-[100dvh] flex flex-col">
-      <div className="bg-transparent sm:bg-white rounded-2xl sm:shadow-2xl p-0 shadow-none sm:p-6 md:p-8 flex-1">
+    <div className="w-full max-w-4xl mx-auto px-4 py-6 sm:px-6 sm:py-8 pb-8 min-h-[100dvh] flex flex-col">
+      <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 sm:p-6 md:p-8 flex-1">
         {/* 헤더: 모바일에서 제목·로고 크기 조정 */}
         <div className="text-center mb-8 sm:mb-10">
           <h3 className="text-xl sm:text-2xl font-extrabold text-red-500 mb-2 tracking-tight">AJ렌탈 로지스</h3>
@@ -176,9 +176,9 @@ ${products
               {products.map((product, index) => (
                 <div
                   key={product.id}
-                  className="mb-4 p-4 rounded-2xl bg-white space-y-4 border border-gray-200"
+                  className="mb-4 p-4 rounded-2xl border border-gray-200 bg-gray-50/50 space-y-4"
                 >
-                  <div className="flex justify-between items-center  ">
+                  <div className="flex justify-between items-center">
                     <h4 className="text-sm font-bold text-gray-800">상품 {index + 1}</h4>
                     {products.length > 1 && (
                       <Button
