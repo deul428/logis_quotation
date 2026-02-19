@@ -629,6 +629,17 @@ function sendEmailToSalesManager(data) {
     const quoteAmountFormatted = data.row.quoteAmount
       ? data.row.quoteAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
       : null;
+
+    const rawText = data.row.rawText != null ? String(data.row.rawText) : "";
+    // Outlook(Word renderer) 호환: 개행은 <br>로 강제하고, 원문은 HTML 이스케이프
+    const rawTextHtml = rawText
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;")
+      .replace(/\r\n/g, "\n")
+      .replace(/\n/g, "<br/>");
     const htmlBody = `<html>
   <body
     style="
@@ -649,35 +660,36 @@ function sendEmailToSalesManager(data) {
         font-size: 14px;
       "
     >
-      <div style="margin-bottom: 12px; display: flex; flex-direction: column">
-        <div style="font-weight: bold; margin: 0">견적 요청 본문</div>
-        <div style="display: flex; flex-direction: column">
-          <div
-            style="
-              white-space: pre-wrap;
-              overflow: visible;
-              text-overflow: unset;
-            "
-          >${data.row.rawText || ""}
-          </div>
+      <div style="margin-bottom: 12px;">
+        <div style="font-weight: bold; width: 100%">
+          견적 요청 본문
+        </div>
+        <div
+          style="margin-top: 1px;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: unset;
+            width: 100%;
+          "
+        >${rawTextHtml}
         </div>
       </div>
       <div style="margin-bottom: 12px; display: flex; flex-direction: row">
-        <div style="font-weight: bold; width: 150px;">견적 담당자</div>
+        <div style="font-weight: bold; width: 150px">견적 담당자</div>
         <div style="width: 80%">${data.row.manager || ""}</div>
       </div>
 
       <div style="margin-bottom: 12px; display: flex; flex-direction: row">
-        <div style="font-weight: bold; width: 150px;">견적 요청일</div>
+        <div style="font-weight: bold; width: 150px">견적 요청일</div>
         <div style="width: 80%">${data.row.requestDate || ""}</div>
       </div>
       <div style="margin-bottom: 12px; display: flex; flex-direction: row">
-        <div style="font-weight: bold; width: 150px;">견적담당자 비고</div>
+        <div style="font-weight: bold; width: 150px">견적담당자 비고</div>
         <div style="width: 80%">${data.row.quoteMemo || ""}</div>
       </div>
 
       <div style="margin-bottom: 12px; display: flex; flex-direction: row">
-        <div style="font-weight: bold; width: 150px;">견적 금액</div>
+        <div style="font-weight: bold; width: 150px">견적 금액</div>
         <div style="width: 80%">${quoteAmountFormatted + "원" || ""}</div>
       </div>
     </div>
