@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 
 import Button from './components/Button';
-import ci from './assets/img/logo.svg';
 import { BookOpenCheck, PencilLine } from 'lucide-react';
 
 const User: React.FC = () => {
   const [salesManagerName, setSalesManagerName] = useState<string>('');
+  // 레거시(사번) 질문이 폼에 남아있을 수 있어, UI에서는 숨기고 빈 값으로 전송합니다.
+  const legacySalesManagerId = '';
   const fieldMsg: string = `업체명: 
   
 지역: 
@@ -22,17 +23,23 @@ const User: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!salesManagerName.trim()) {
+      alert('영업 담당자 성함을 입력해 주세요.');
+      return;
+    }
     if (!content.trim()) {
       alert('문의 내용을 입력해 주세요.');
       return;
     }
     try {
       const formData = new FormData();
-      formData.append('entry.586019235', salesManagerName);
-      formData.append('entry.1839132968', '');
-      formData.append('entry.1271596132', content);
+      // 새 폼 기준: 영업 담당자 성함 / 문의 내용 entry로 전송
+      formData.append('entry.1503248732', salesManagerName);
+      // 레거시 사번 entry (있을 경우에만 의미가 있고, 없으면 무시됨)
+      formData.append('entry.1839132968', legacySalesManagerId);
+      formData.append('entry.124570223', content);
       await fetch(
-        'https://docs.google.com/forms/d/e/1FAIpQLSctYhlQvrIz8v9g041upLmtKANxDG6vHa8Y23l9VD59j1U1fg/formResponse',
+        'https://docs.google.com/forms/d/e/1FAIpQLSfCGSuq6CroeOB2XM_fF6ZD3xehS9CFMJ62C9t15zOOEJnadw/formResponse',
         { method: 'POST', body: formData, mode: 'no-cors' }
       );
       setIsSubmitted(true);
@@ -67,13 +74,15 @@ const User: React.FC = () => {
         {!isSubmitted && (
           <div className="mb-6">
             <form onSubmit={handleSubmit} className="space-y-6">
+             
+              <input type="hidden" name="entry.1839132968" value={legacySalesManagerId} readOnly />
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   영업 담당자 성함
                 </label>
                 <input
                   type="text"
-                  name="entry.586019235"
+                  name="entry.1503248732"
                   placeholder="영업 담당자 성함"
                   value={salesManagerName}
                   onChange={(e) => setSalesManagerName(e.target.value)}
@@ -85,7 +94,7 @@ const User: React.FC = () => {
                   문의 내용
                 </label>
                 <textarea
-                  name="entry.1271596132"
+                  name="entry.124570223"
                   rows={10}
                   placeholder={`예시)\n업체명: AJ\n지역: 서울 송파구\n1. 상품: 박스 / 규격: W450*H460*0.06MM / 사용량: 약 40,000장\n2. 상품: 테이프 / 규격: W500*H600 / 사용량: 약 20,000롤 / 사용금액: 500,000원\n요청사항: 납기 일정 회신 부탁드립니다.\n\n※ 정보가 없을 경우, 입력하지 않으셔도 됩니다.`}
                   value={content}

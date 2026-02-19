@@ -3,7 +3,7 @@
  * 역할: 외부 요청(사용자/관리자)의 단일 진입점 + 라우팅만 담당 
  ***************************************************/ 
 
-const SPREADSHEET_ID = "1DWMrJob6_EDVWHBIMRx3Ee67sekKQQcu8gU8ir21mc8";
+const SPREADSHEET_ID = "1D4o0VnekYm4WwlB_nbhDzu1LJPDkkctd7e4xh-K-hl0";
 
 // CORS/공통 응답 유틸
 function jsonResponse(obj) {

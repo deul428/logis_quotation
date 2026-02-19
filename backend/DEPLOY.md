@@ -4,12 +4,11 @@
 
 - **진입점**: `Code.js` (main.gs 역할) — `doGet`, `doPost` 라우팅
 - **관리자 API**: `input_admin.js` — 파싱결과 시트 조회/수정
-- **사용자/폼 처리**: `input_user.js` — 견적 문의 파싱, 폼 응답 트리거, 파싱결과 시트 삽입
+- **사용자/폼 처리(기본)**: `input_user.js` — 견적 문의(단일 텍스트) 파싱, 폼 응답 트리거, 파싱결과 시트 삽입
+- **사용자/폼 처리(User02 멀티필드)**: `input_user02.js` — 멀티 입력(User02) 데이터 저장(파싱결과_멀티필드)
 - **스프레드시트 ID**: `Code.js` 상단 `SPREADSHEET_ID` 한 곳에서만 정의
 
-연결 스프레드시트:  
-`https://docs.google.com/spreadsheets/d/1DWMrJob6_EDVWHBIMRx3Ee67sekKQQcu8gU8ir21mc8/edit`
-
+연결 스프레드시트 
 ---
 
 ## 2. GAS 배포 절차
@@ -19,6 +18,7 @@
    - `Code.js` → 메인 파일
    - `input_admin.js`
    - `input_user.js`
+   - `input_user02.js` (User02 기능을 쓰는 경우 필수)
 3. HTML 파일이 있다면 함께 업로드: `index_user.html`, `index_admin.html` 등.
 4. **배포** → **새 배포** → 유형: **웹 앱**
    - 실행 사용자: **나**
@@ -62,8 +62,29 @@
 | 단계 | 내용 |
 |------|------|
 | 1 | GAS에 Code.js, input_admin.js, input_user.js 반영 |
+| 1-1 | (User02 사용 시) input_user02.js 반영 |
 | 2 | SPREADSHEET_ID 가 사용 중인 스프레드시트와 일치하는지 확인 |
 | 3 | 웹 앱으로 배포 후 URL 복사 |
 | 4 | `setupFormResponseTrigger()` 한 번 실행해 트리거 등록 |
 | 5 | 폼 응답 시트 이름이 FORM_RESPONSE_SHEET_NAMES 에 포함되는지 확인 |
 | 6 | (선택) 프론트용 프록시에 GAS URL 반영 |
+
+---
+
+## 7. (중요) “안 쓰는 코드” 판단 크로스체크 절차
+
+문서만 보고 “안 쓴다”고 결론 내리지 말고, 아래를 먼저 확인합니다.
+
+### 7-1) 코드 라우팅/호출 경로 확인(저장소 기준)
+- **GAS 라우팅**: `Code.js`에서 `mode === "user02"` 분기가 있으면, `input_user02.js`의 `user02PostEntry()`는 호출되면 실행됩니다.
+- **프론트 라우팅**: `frontend/src/App.tsx`에 `/multi` 라우트가 있으면 User02 페이지 접근 경로가 존재합니다.
+- **프론트 → API payload**: `frontend/src/User02.tsx`가 `mode: 'user02'`로 POST하면, 백엔드 `user02PostEntry()`가 실제로 호출됩니다.
+
+### 7-2) “현재 배포에서 실제로 쓰는지” 확인(운영/배포물 기준)
+- **GAS 편집기(배포된 프로젝트)**에서 파일 목록에 `input_user02`가 존재하는지 확인
+- **배포 버전**이 최신인지 확인(Deploy → Manage deployments → Version)
+- 프록시(`proxy.js`)를 쓰면 **targetKey/targetUrl**이 최신 웹앱 URL을 가리키는지 확인
+- 가능하면 **실제 요청 1건**을 보내서(예: `/multi` 제출) 시트에 기록되는지/로그가 남는지로 검증
+
+### 7-3) 제거 기준
+- 7-1/7-2에서 호출 경로가 없고, 운영에서 사용하지 않는 것이 확인되면 제거(또는 별도 백업 브랜치/태그로 보존)합니다.

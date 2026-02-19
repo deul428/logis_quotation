@@ -10,7 +10,7 @@
 
 // ⚠️ 같은 GAS 프로젝트에 SPREADSHEET_ID(const)가 이미 선언되어 있을 수 있으므로 재선언 금지
 const USER02_SPREADSHEET_ID_FALLBACK =
-  "1DWMrJob6_EDVWHBIMRx3Ee67sekKQQcu8gU8ir21mc8";
+  "1D4o0VnekYm4WwlB_nbhDzu1LJPDkkctd7e4xh-K-hl0";
 
 function getUser02Spreadsheet() {
   const spreadsheetId =

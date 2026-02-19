@@ -107,14 +107,14 @@ const ConsoleDetail: React.FC<ConsoleDetailProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl max-h-[80vh] w-full max-w-3xl overflow-y-auto p-6"
+        className="bg-white rounded-xl shadow-xl max-h-[90dvh] w-full max-w-[80dvw] overflow-y-auto p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-bold text-gray-900 mb-4">견적 상세 정보</h2>
         <div>
           {orderedEntries.length > 0 ? (
             <>
-              <div className="grid grid-cols-[minmax(0,40%)_1fr] gap-0 border border-gray-200 rounded-lg overflow-hidden">
+              <div className="grid grid-cols-3 gap-0 border border-gray-200 rounded-lg overflow-hidden ">
                 {orderedEntries.map(([key, value]) => {
                   const nKey = normalizeKey(key);
                   if (key.trim() === "영업 담당자 사번별 이름" || key.trim() === "영업담당자 메일" || key.trim() === "견적담당자 메일") {
@@ -174,14 +174,14 @@ const ConsoleDetail: React.FC<ConsoleDetailProps> = ({
                   }
 
                   return (
-                    <React.Fragment key={key}>
-                      <div className="px-3 py-2.5 bg-gray-50 text-xs font-medium text-gray-600 border-b border-gray-200 last:border-b-0">
+                    <div key={key} className="flex flex-row w-full">
+                      <div className="px-3 py-2.5 bg-gray-50 text-sm font-bold text-gray-600 border border-gray-200 last:border-b-0 w-1/2">
                         {key}
                       </div>
-                      <div className="px-3 py-2.5 text-sm text-gray-900 border-b border-l border-gray-200 last:border-b-0">
+                      <div className="px-3 py-2.5 text-sm text-gray-900 border border-gray-200 w-1/2">
                         {displayValue}
                       </div>
-                    </React.Fragment>
+                    </div>
                   );
                 })}
               </div>
@@ -208,7 +208,7 @@ const ConsoleDetail: React.FC<ConsoleDetailProps> = ({
           {onSaveAll && (
             <Button
               type="button"
-              variant="primary" 
+              variant="primary"
               fullWidth
               className="min-w-[120px]"
               onClick={() => onSaveAll(estimateNum, pastAmount, localAmount, pastMemo, localMemo)}
@@ -218,7 +218,7 @@ const ConsoleDetail: React.FC<ConsoleDetailProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

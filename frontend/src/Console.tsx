@@ -651,7 +651,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                       <th
                         key={i}
                         onClick={() => isSortable && handleSort(colName)}
-                        className={`px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 ${isSortable ? "cursor-pointer hover:bg-gray-100" : ""
+                        className={`px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50 ${isSortable ? "cursor-pointer hover:bg-gray-100" : ""
                           }`}
                       >
                         <div className="flex items-center gap-2">
@@ -661,7 +661,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                       </th>
                     );
                   })}
-                  <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
+                  <th className="px-2 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50">
                     진행 상태
                   </th>
                 </tr>
@@ -697,7 +697,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                           if (colName.toString().replace(/ /g, "").trim() === "견적담당자비고") {
                             const memoValue = editedMemo[estimateNum] ?? value ?? "";
                             return (
-                              <td key={i} className="px-3 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
+                              <td key={i} className="px-2 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center gap-1 min-w-0">
                                   <input
                                     type="text"
@@ -727,7 +727,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                           if (colName.toString().replace(/ /g, "").trim() === "견적금액") {
                             const amountValue = editedAmounts[estimateNum] ?? value ?? "";
                             return (
-                              <td key={i} className="px-3 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
+                              <td key={i} className="px-2 py-2 text-sm text-gray-900" onClick={(e) => e.stopPropagation()}>
                                 <div className="flex items-center gap-1 min-w-0">
                                   <input
                                     type="number"
@@ -755,13 +755,13 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                           }
 
                           return (
-                            <td key={i} className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
+                            <td key={i} className="px-2 py-2 whitespace-nowrap text-sm text-gray-900">
                               <span className="line-clamp-2 break-words">{formatCell(value)}</span>
                             </td>
                           );
                         })}
 
-                        <td className="px-3 py-2 text-sm" onClick={(e) => e.stopPropagation()}>
+                        <td className="px-2 py-2 text-sm" onClick={(e) => e.stopPropagation()}>
                           <Button
                             type="button"
                             size="sm"
@@ -866,7 +866,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                 type="text"
                 value={searchManager}
                 onChange={(e) => searchFilter(e.target.dataset.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -877,7 +877,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                 type="text"
                 value={searchSalesManager}
                 onChange={(e) => searchFilter(e.target.dataset.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -887,7 +887,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                 type="date"
                 value={searchReqDate}
                 onChange={(e) => searchFilter(e.target.dataset.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -898,7 +898,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                 type="text"
                 value={searchCompany}
                 onChange={(e) => searchFilter(e.target.dataset.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -907,7 +907,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
                 data-key="status"
                 value={searchStts}
                 onChange={(e) => searchFilter(e.target.dataset.key, e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
+                className="w-full px-2 py-2 border border-gray-300 rounded-md text-sm"
               >
                 <option value="">전체</option>
                 <option value="접수전">접수전</option>

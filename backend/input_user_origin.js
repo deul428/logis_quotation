@@ -4,10 +4,7 @@
 
 
 // 사번 매핑 전 성함으로 하던 버전
-
-// 특정 스프레드시트 ID 지정
-// const SPREADSHEET_ID = "1DWMrJob6_EDVWHBIMRx3Ee67sekKQQcu8gU8ir21mc8";
-
+ 
 // 특정 스프레드시트 사용
 function getSpreadsheet() {
   return SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -131,7 +128,7 @@ function processFormResponse(sheet, row) {
     const timestampIdx = getColIndex("타임스탬프");
     const rawTextIdx = getColIndex("원본텍스트");
     const salesManagerNameIdx = getColIndex("영업담당자");
-    const salesManagerNumIdx = getColIndex("영업담당자");
+    const salesManagerNumIdx = getColIndex("영업담당자사번"); 
     const statusIdx = getColIndex("처리상태");
 
     // 응답 데이터 가져오기 (전체 행)
@@ -181,50 +178,7 @@ function getSheetData() {
   const data = sheet.getDataRange().getValues(); // 2D 배열로 가져옴
   return data;
 }
-
-// ============================================
-// HTML 프론트 fetch() → 시트 직접 기록용 API
-// ============================================
-// function userPostEntry(e) {
-//   try {
-//     const data = JSON.parse(e.postData.contents);
-//     Logger.log("✅ 요청 수신:", e.postData.contents);
-//     const sheet =
-//       SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName("설문지 응답");
-//     const timestamp = new Date();
-//     const rawText = data.rawText || "";
-//     const user = data.user || "";
-//     const email = data.email || "";
-
-//     // 시트에 한 줄 추가 (A: Timestamp, B: 원본텍스트, C: 처리상태)
-//     const newRow = [timestamp, rawText, "대기", user, email];
-//     sheet.appendRow(newRow);
-
-//     // 새로 추가된 행 번호 가져오기
-//     const lastRow = sheet.getLastRow();
-
-//     // 폼 응답 자동 처리와 동일하게 호출
-//     processFormResponse(sheet, lastRow);
-
-//     return ContentService.createTextOutput(
-//       JSON.stringify({ status: "success" })
-//     )
-//       .setMimeType(ContentService.MimeType.JSON)
-//       .setHeader("Access-Control-Allow-Origin", "*")
-//       .setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-//   } catch (error) {
-//     console.error("❌ doPost 오류:", error);
-//     return ContentService.createTextOutput(
-//       JSON.stringify({ status: "error", message: error.toString() })
-//     ).setMimeType(ContentService.MimeType.JSON);
-//   }
-// }
-// function doOptions(e) {
-//   return ContentService.createTextOutput("")
-//     .setHeader("Access-Control-Allow-Origin", "*")
-//     .setHeader("Access-Control-Allow-Methods", "POST, OPTIONS")
-//     .setHeader("Access-Control-Allow-Headers", "Content-Type");
-// }
+ 
 function extractValue(line, keywords) {
   for (let keyword of keywords) {
     const patterns = [keyword + ":", keyword + " :", keyword + "："];

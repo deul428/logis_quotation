@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogIn } from 'lucide-react';
+import { LogIn, User } from 'lucide-react';
 
 import LoadingOverlay from './components/LoadingOverlay';
 import Button from './components/Button';
@@ -14,9 +14,8 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const VALID_USERS = [
-    { id: 'admin', pw: '1234', name: 'admin' },
-    { id: 'manager', pw: 'abcd', name: 'manager' },
+  const VALID_USERS = [ 
+    { id: 'manager', pw: 'manager', name: 'manager' },
     { id: 'guest', pw: 'guest', name: 'guest' },
     { id: 'gksektha12', pw: '218738', name: 'testuser' },
     { id: 'jinhob', pw: '221353', name: 'testuser' },
@@ -108,11 +107,12 @@ const Login: React.FC = () => {
             </Button>
             <Button
               variant="outline"
+              type="button"
               onClick={() => navigate('/user')}
-              type="submit"
+              // type="submit"
               disabled={loading}
               fullWidth
-              icon={LogIn}
+              icon={User}
             >
               일반 사용자 페이지로 이동
             </Button>

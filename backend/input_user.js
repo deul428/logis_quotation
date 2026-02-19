@@ -139,8 +139,9 @@ function processFormResponse(sheet, row) {
       .getRange(1, 1, 1, sheet.getLastColumn())
       .getValues()[0];
     Logger.log("헤더:", headerRow);
+    const normHeader = (v) => String(v || "").replace(/\s/g, "").trim();
     const getColIndex = (name) =>
-      headerRow.findIndex((h) => h && String(h).trim() === name.trim());
+      headerRow.findIndex((h) => h && normHeader(h) === normHeader(name));
     // 헤더가 '견적 문의 내용'을 포함하는 열 찾기 (폼에서 '(필수)' 등이 붙은 경우 대비)
     const getRawTextCol = () => {
       const exact = getColIndex("견적 문의 내용");
@@ -156,7 +157,6 @@ function processFormResponse(sheet, row) {
     const timestampIdx = getColIndex("타임스탬프") >= 0 ? getColIndex("타임스탬프") : 0;
     const rawTextIdx = getRawTextCol();
     const salesManagerNameIdx = getColIndex("영업담당자");
-    const salesManagerNumIdx = getColIndex("영업담당자사번");
     const statusIdx = getColIndex("처리상태");
 
     // 응답 데이터 가져오기 (전체 행)
@@ -169,9 +169,7 @@ function processFormResponse(sheet, row) {
     const timestamp = timestampIdx > -1 ? rowData[timestampIdx] : "";
     const rawText = rawTextIdx > -1 ? rowData[rawTextIdx] : "";
     const salesManagerName =
-      salesManagerNameIdx > -1 ? rowData[salesManagerNameIdx] : "김희수";
-    const salesManagerNum =
-      salesManagerNumIdx > -1 ? rowData[salesManagerNumIdx] : "김희수";
+      salesManagerNameIdx > -1 ? rowData[salesManagerNameIdx] : "";
     const status = statusIdx > -1 ? rowData[statusIdx] : "";
 
     // 처리상태 컬럼: 헤더 이름으로 찾은 열에만 업데이트 (인덱스 사용 금지)
@@ -827,21 +825,21 @@ function getManager(productName) {
   }
 }
 
-// 영업담당자 이름 → 영업담당자메일 매핑 (영업담당자_리스트 시트에서 헤더 기반 검색)
-function getSalesManagerEmail(salesManagerName) {
+// 영업담당자 이름 → { name, email } 매핑 (영업담당자_리스트 시트에서 헤더 기반 검색)
+function getSalesManagerInfo(salesManagerName) {
   const name = String(salesManagerName || "").trim();
-  if (!name) return "";
+  if (!name) return { name: "", email: "" };
 
   try {
     const spreadsheet = getSpreadsheet();
     const sheet = spreadsheet.getSheetByName("영업담당자_리스트");
     if (!sheet) {
       console.log("영업담당자_리스트 시트를 찾을 수 없음");
-      return "";
+      return { name, email: "" };
     }
 
     const data = sheet.getDataRange().getValues();
-    if (data.length < 2) return "";
+    if (data.length < 2) return { name, email: "" };
     const headers = data[0];
 
     const norm = (v) => String(v || "").replace(/\s/g, "").trim();
@@ -855,26 +853,39 @@ function getSalesManagerEmail(salesManagerName) {
 
     const nameCol = findCol(["영업담당자", "영업담당자명", "담당자", "이름"]);
     const emailCol = findCol(["영업담당자메일", "영업담당자 메일", "메일", "이메일"]);
-    if (nameCol === -1 || emailCol === -1) {
-      console.log("영업담당자_리스트에서 이름/메일 컬럼을 찾지 못함");
-      return "";
+
+    if (emailCol === -1) {
+      console.log("영업담당자_리스트에서 메일 컬럼을 찾지 못함");
+      return { name, email: "" };
     }
 
-    const target = norm(name);
+    const targetName = norm(name);
+
     for (let i = 1; i < data.length; i++) {
       const row = data[i];
-      const rowName = norm(row[nameCol]);
-      if (!rowName) continue;
-      if (rowName === target || rowName.includes(target) || target.includes(rowName)) {
-        const email = String(row[emailCol] || "").trim();
-        return email;
+      const rowName = nameCol !== -1 ? norm(row[nameCol]) : "";
+
+      // 이름 매칭
+      if (targetName && rowName) {
+        if (rowName === targetName || rowName.includes(targetName) || targetName.includes(rowName)) {
+          return {
+            name: nameCol !== -1 ? String(row[nameCol] || "").trim() : name,
+            email: String(row[emailCol] || "").trim(),
+          };
+        }
       }
     }
-    return "";
+
+    return { name, email: "" };
   } catch (e) {
-    console.error("영업담당자 메일 매핑 오류:", e);
-    return "";
+    console.error("영업담당자 매핑 오류:", e);
+    return { name, email: "" };
   }
+}
+
+function getSalesManagerEmail(salesManagerName) {
+  const info = getSalesManagerInfo(salesManagerName);
+  return info.email || "";
 }
 
 // 견적번호 생성
@@ -900,7 +911,7 @@ function generateEstimateNum(sheet) {
 function insertToFinalSheet(
   parsedData,
   manager,
-  salesManager,
+  salesManagerName,
   timestamp,
   rawText
 ) {
@@ -1019,14 +1030,17 @@ function insertToFinalSheet(
 
     const headers = ensureFinalHeadersUser_(finalSheet);
     const estimateNum = generateEstimateNumByHeaderUser_(finalSheet, headers);
-    const salesManagerEmail = getSalesManagerEmail(salesManager);
+    const salesInfo = getSalesManagerInfo(salesManagerName);
+    const resolvedSalesManagerName = salesInfo.name || String(salesManagerName || "").trim();
+    const salesManagerEmail = salesInfo.email || "";
 
     // 상태 열로 통합: 신규 접수는 '접수전'
     appendRowByHeadersUser_(finalSheet, headers, {
       "견적번호": estimateNum,
       "상태": "접수전",
       "부서(팀)": "",
-      "영업담당자": salesManager,
+      // 영업담당자는 "성함"을 기본 식별자로 저장합니다. (사번은 폼/시트에 남아있더라도 보조값)
+      "영업담당자": resolvedSalesManagerName,
       "영업담당자메일": salesManagerEmail || "",
       "견적담당자": manager?.name || "",
       "견적담당자메일": manager?.email || "",
@@ -1061,7 +1075,7 @@ function insertToFinalSheet(
 
     // 담당자 이메일이 있으면 자동 메일 발송
     if (manager.email) {
-      sendEmailToManager(manager, salesManager, parsedData, estimateNum);
+      sendEmailToManager(manager, resolvedSalesManagerName, parsedData, estimateNum);
     }
   } catch (error) {
     console.error("데이터 삽입 오류:", error);
@@ -1155,7 +1169,7 @@ function updateFormResponseStatus(sheet, row, status) {
 function processRawData(
   rawText,
   timestamp,
-  salesManager,
+  salesManagerName,
   sourceRow,
   sourceSheet
 ) {
@@ -1190,12 +1204,12 @@ function processRawData(
         const rowData = mapProductData(baseData, product);
         const manager = getManager(rowData.상품);
 
-        insertToFinalSheet(rowData, manager, salesManager, timestamp, rawStr);
+        insertToFinalSheet(rowData, manager, salesManagerName, timestamp, rawStr);
         console.log("상품 " + (i + 1) + " 삽입 완료");
       }
     } else {
       const manager = getManager(baseData.상품);
-      insertToFinalSheet(baseData, manager, salesManager, timestamp, rawStr);
+      insertToFinalSheet(baseData, manager, salesManagerName, timestamp, rawStr);
       console.log("단일 상품 삽입 완료");
     }
 
@@ -1300,13 +1314,13 @@ function testParsingWithSampleData() {
 요청사항: 납기 일정 회신 부탁드립니다`;
 
     const timestamp = new Date();
-    const salesManager = "임민규";
+    const salesManagerName = "임민규";
 
     console.log("테스트할 샘플 데이터:", sampleText);
-    console.log("영업담당자:", salesManager);
+    console.log("영업담당자:", salesManagerName);
 
     // processRawData 함수 직접 호출
-    processRawData(sampleText, timestamp, salesManager, null, null);
+    processRawData(sampleText, timestamp, salesManagerName, null, null);
 
     console.log("=== 샘플 데이터 테스트 완료 ===");
   } catch (error) {
