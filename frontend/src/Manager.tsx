@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { ArrowUp, ArrowDown, ArrowUpDown, RotateCw, ChevronsUp, ChevronsUpIcon, RefreshCcwIcon } from "lucide-react";
+import { ArrowUp, ArrowDown, ArrowUpDown, ChevronsUpIcon, RefreshCcwIcon } from "lucide-react";
 
-import ConsoleDetail from "./ConsoleDetail";
+import ManagerDetail from "./ManagerDetail";
 import LoadingOverlay from "./components/LoadingOverlay";
 import Button from "./components/Button";
 import Pagination from "./components/Pagination";
@@ -12,7 +12,7 @@ interface FetchResponse {
   message?: string;
   data?: string[][];
 }
-interface ConsoleProps {
+interface ManagerProps {
   tabData: string;
   setTabData: React.Dispatch<React.SetStateAction<string>>;
 }
@@ -53,7 +53,7 @@ const SORTABLE_COLUMNS = [
   "견적 금액",
 ];
 
-const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
+const Manager: React.FC<ManagerProps> = ({ tabData, setTabData }) => {
   const [allColumns, setAllColumns] = useState<string[]>([]);
   const [activeColumns, setActiveColumns] = useState<string[]>([]);
   const [data, setData] = useState<string[][]>([]);
@@ -95,7 +95,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
   const loadData = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_URL}?mode=console&action=readAll`);
+      const res = await fetch(`${API_URL}?mode=manager&action=readAll`);
       const text = await res.text();
       let json: FetchResponse;
       try {
@@ -233,7 +233,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
     setLoading(true);
 
     const payload = {
-      mode: "console",
+      mode: "manager",
       action: "updateEstimate-cost",
       estimateNum,
       newAmount,
@@ -282,7 +282,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
     setLoading(true);
 
     const payload = {
-      mode: "console",
+      mode: "manager",
       action: "updateEstimate-memo",
       estimateNum,
       newMemo,
@@ -336,7 +336,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
 
     setLoading(true);
     const payload = {
-      mode: "console",
+      mode: "manager",
       action: "updateEstimate-all",
       estimateNum,
       newAmount,
@@ -526,7 +526,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
       if (confirmUpdate) {
         try {
           const payload = {
-            mode: "console",
+            mode: "manager",
             action: `updateEstimate-${action}`,
             estimateNum,
             newAmount: newAmount,
@@ -597,7 +597,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
       }
 
       const payload = {
-        mode: "console",
+        mode: "manager",
         action: "sendToSalesManager",
         row,
       };
@@ -839,7 +839,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
   };
   return (
     <>
-      <div id="console" className="max-w-[90dvw] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div id="manager" className="max-w-[90dvw] mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <Button
           type="button"
           id="top"
@@ -849,7 +849,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
         >
           <ChevronsUpIcon className="w-5" /></Button>
         {loading && <LoadingOverlay message="견적 목록을 불러오는 중..." />}
-        {location.pathname.includes("console") ? (
+        {location.pathname.includes("manager") ? (
           <div className="mb-6">
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900">견적 관리 (관리자)</h2>
             <p className="mt-1 text-gray-600 font-medium text-sm">견적 목록을 검색·관리할 수 있습니다.</p>
@@ -926,7 +926,7 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
         {renderTable()}
 
         {selectedRow && (
-          <ConsoleDetail
+          <ManagerDetail
             formatCell={formatCell}
             row={selectedRow}
             headerOrder={data?.[0] ?? []}
@@ -943,4 +943,4 @@ const Console: React.FC<ConsoleProps> = ({ tabData, setTabData }) => {
   );
 };
 
-export default Console;
+export default Manager;

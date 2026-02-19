@@ -1,6 +1,6 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Key, LogIn, LogOut } from 'lucide-react';
+import { Key, LogIn } from 'lucide-react';
 
 import Button from './components/Button';
 import ci from './assets/img/logo.svg';
@@ -16,7 +16,7 @@ const Header: React.FC<ChatTitleProps> = ({ tabData, setTabData }) => {
   const loggedIn = localStorage.getItem('isLoggedIn');
   const userId = localStorage.getItem('userId');
   const location = useLocation();
-  const isConsole = location.pathname.includes('console');
+  const isManager = location.pathname.includes('manager');
 
   const handleLogout = () => {
     if (loggedIn === 'true' && window.confirm('로그아웃하시겠습니까?')) {
@@ -48,8 +48,8 @@ const Header: React.FC<ChatTitleProps> = ({ tabData, setTabData }) => {
               </Button>
               <Button
                 type="button"
-                variant={tabData === 'console' ? 'primary' : 'ghost'}
-                onClick={() => setTabData('console')}
+                variant={tabData === 'manager' ? 'primary' : 'ghost'}
+                onClick={() => setTabData('manager')}
                 className="min-h-[44px] sm:min-h-[40px] text-sm font-medium px-3 sm:px-4"
               >
                 관리자용
@@ -59,7 +59,7 @@ const Header: React.FC<ChatTitleProps> = ({ tabData, setTabData }) => {
 
           {/* 로그인 정보 / 로그인 버튼 */}
           <div className="flex items-center order-3 sm:order-3 flex-shrink-0">
-            {isConsole && loggedIn === 'true' && (
+            {isManager && loggedIn === 'true' && (
               <div className="hidden sm:flex items-center gap-2 text-gray-600 text-sm font-medium truncate max-w-[120px] lg:max-w-none">
                 <img src={user} alt="" className="w-6 h-6 opacity-80 flex-shrink-0" />
                 <span className="truncate">{userId}</span>

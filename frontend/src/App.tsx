@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, Routes, Route, useNavigate } from 'react-router-dom';
 
-import Console from './Console';
+import Manager from "./Manager";
 import Header from './Header';
 import Login from './Login';
 import User from './User';
@@ -32,12 +32,12 @@ const App: React.FC = () => {
 
   const loggedIn = localStorage.getItem('isLoggedIn');
   useEffect(() => {
-    if (tabData === 'console') {
+    if (tabData === 'manager') {
       if (loggedIn !== 'true') {
         alert('로그인이 필요한 메뉴입니다.');
         navigate('/login');
       } else {
-        navigate('/console');
+        navigate('/manager');
       }
     } else if (tabData === 'user' && !location.pathname.includes('multi') && !location.pathname.includes('login')) {
       navigate('/user');
@@ -45,12 +45,12 @@ const App: React.FC = () => {
   }, [tabData]);
 
   useEffect(() => {
-    if (location.pathname.includes('console')) {
+    if (location.pathname.includes('manager')) {
       if (loggedIn !== 'true') {
         alert('로그인이 필요합니다.');
         navigate('/login');
       } else {
-        navigate('/console');
+        navigate('/manager');
       }
     }
   }, [location.pathname]);
@@ -63,7 +63,7 @@ const App: React.FC = () => {
         element={
           <MainLayout tabData={tabData} setTabData={setTabData}>
             <Routes>
-              <Route path="/console" element={<Console tabData={tabData} setTabData={setTabData} />} />
+              <Route path="/manager" element={<Manager tabData={tabData} setTabData={setTabData} />} />
               <Route path="/" element={<User />} />
               <Route path="/multi" element={<User02 />} />
               <Route path="/user" element={<User />} />

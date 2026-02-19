@@ -1104,8 +1104,7 @@ function sendEmailToManager(manager, salesManager, parsedData, estimateNum) {
   >
     <p style="font-size: 12px; color: #777">
       본 메일은 시스템에서 자동 발송되었습니다.
-    </p>
-    <h2 style="color: #ef3340">신규 견적 요청 안내</h2>
+    </p> 
     <p>안녕하세요, <sdivong>${manager.name}</sdivong>님.</p>
 
     <p>새로운 견적 요청이 접수되었습니다.</p>

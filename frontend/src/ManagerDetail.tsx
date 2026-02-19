@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import Button from "./components/Button";
 import { getStatusColor } from "./utils/statusHelpers";
 
-export interface ConsoleDetailProps {
+export interface ManagerDetailProps {
   row: Record<string, string>;
   onClose: () => void;
   formatCell: (value: string | number | null | undefined) => string;
@@ -27,7 +27,7 @@ export interface ConsoleDetailProps {
 const normalizeKey = (key: string) =>
   key.replace(/\s+/g, "").replace(/\n/g, "").replace(/[()]/g, "").trim();
 
-const ConsoleDetail: React.FC<ConsoleDetailProps> = ({
+const ManagerDetail: React.FC<ManagerDetailProps> = ({
   row,
   onClose,
   formatCell,
@@ -222,4 +222,4 @@ const ConsoleDetail: React.FC<ConsoleDetailProps> = ({
   );
 };
 
-export default ConsoleDetail;
+export default ManagerDetail;

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 
-import Button from './components/Button';
-import ci from './assets/img/logo.svg';
+import Button from './components/Button'; 
 import { BookOpenCheck, PencilLine, Trash2 } from 'lucide-react';
 
 interface Product {
@@ -13,7 +12,7 @@ interface Product {
   print: string;
 }
 
-/** User02 전용: GAS 백엔드(또는 프록시) URL. Console과 동일한 프록시 사용 시 같은 값. */
+/** User02 전용: GAS 백엔드(또는 프록시) URL. Manager과 동일한 프록시 사용 시 같은 값. */
 const USER02_API_URL =
   typeof process !== 'undefined' && process.env?.REACT_APP_API_URL
     ? process.env.REACT_APP_API_URL

@@ -35,7 +35,7 @@ const Login: React.FC = () => {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('userName', matched.name);
         localStorage.setItem('userId', matched.id);
-        navigate('/console');
+        navigate('/manager');
       } else {
         setError('아이디 또는 비밀번호가 올바르지 않습니다.');
       }

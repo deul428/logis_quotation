@@ -629,47 +629,56 @@ function sendEmailToSalesManager(data) {
     const quoteAmountFormatted = data.row.quoteAmount
       ? data.row.quoteAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
       : null;
-    const htmlBody = `
-     <html>
+    const htmlBody = `<html>
   <body
-    style="font-family: 'Noto Sans KR', Pretendard, sans-serif; color: #333"
+    style="
+      font-family: &quot;Noto Sans KR&quot;, Pretendard, sans-serif;
+      color: #333;
+    "
   >
     <p style="font-size: 12px; color: #777">
       본 메일은 시스템에서 자동 발송되었습니다.
     </p>
-    <h2 style="color: #ef3340">신규 견적 요청 확인 안내</h2>
-    <p>안녕하세요, <strong>${data.row.salesManager || ""}</strong>님.</p>
+    <p>안녕하세요, ${data.row.salesManager || ""} 님.</p>
     <p>요청하신 ${data.row.estimateNum}번 견적 요청이 접수되었습니다.</p>
-
     <div
-      style="margin-top: 12px; width: 100%; font-size: 14px; overflow: hidden"
+      style="
+        border-collapse: collapse;
+        margin-top: 12px;
+        width: 100%;
+        font-size: 14px;
+      "
     >
-      <h3 style="font-weight: bold; margin: 0">견적 요청 본문</h3>
       <div style="margin-bottom: 12px; display: flex; flex-direction: column">
-        <div
-          style="white-space: pre-wrap; overflow: visible; text-overflow: unset"
-        >
-          ${data.row.rawText || ""}
+        <div style="font-weight: bold; margin: 0">견적 요청 본문</div>
+        <div style="display: flex; flex-direction: column">
+          <div
+            style="
+              white-space: pre-wrap;
+              overflow: visible;
+              text-overflow: unset;
+            "
+          >${data.row.rawText || ""}
+          </div>
         </div>
       </div>
-      <div style="margin-bottom: 12px">
-        <h3 style="font-weight: bold; margin: 0">견적 담당자</h3>
-        <div style="">${data.row.manager || ""}</div>
+      <div style="margin-bottom: 12px; display: flex; flex-direction: row">
+        <div style="font-weight: bold; width: 150px;">견적 담당자</div>
+        <div style="width: 80%">${data.row.manager || ""}</div>
       </div>
 
-      <div style="margin-bottom: 12px">
-        <h3 style="font-weight: bold; margin: 0">견적 요청일</h3>
-        <div style="">${data.row.requestDate || ""}</div>
+      <div style="margin-bottom: 12px; display: flex; flex-direction: row">
+        <div style="font-weight: bold; width: 150px;">견적 요청일</div>
+        <div style="width: 80%">${data.row.requestDate || ""}</div>
+      </div>
+      <div style="margin-bottom: 12px; display: flex; flex-direction: row">
+        <div style="font-weight: bold; width: 150px;">견적담당자 비고</div>
+        <div style="width: 80%">${data.row.quoteMemo || ""}</div>
       </div>
 
-      <div style="margin-bottom: 12px">
-        <h3 style="font-weight: bold; margin: 0">견적담당자 비고</h3>
-        <div style="">${data.row.quoteMemo || ""}</div>
-      </div>
-
-      <div style="">
-        <h3 style="font-weight: bold; margin: 0">견적 금액</h3>
-        <div style="">${quoteAmountFormatted + "원" || ""}</div>
+      <div style="margin-bottom: 12px; display: flex; flex-direction: row">
+        <div style="font-weight: bold; width: 150px;">견적 금액</div>
+        <div style="width: 80%">${quoteAmountFormatted + "원" || ""}</div>
       </div>
     </div>
 
